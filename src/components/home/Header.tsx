@@ -3,11 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { Sidebar } from "../atoms/Sidebar";
 import { ModalComponent } from "../atoms/ModalComponent";
 import { useAuthService } from "../../store/useAuth.service";
+import { useThemeStore } from "../../store/useTheme.store";
 
 export const Header = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuthService();
   const navigate = useNavigate();
+
+  const { setTheme, supportedThemes } = useThemeStore();
+
+  const handleThemeChange = (theme: string) => {
+    setTheme(theme);
+  };
 
   const handleLogout = async () => {
     try {
@@ -35,7 +42,20 @@ export const Header = () => {
           </button>
         </div>
         <div className="flex gap-2">
-         
+          <div className="dropdown dropdown-end">
+            <label tabIndex={0} className="btn btn-ghost btn-circle">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </label>
+            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+              {supportedThemes.map((theme) => (
+                <li key={theme.name}>
+                  <button onClick={() => handleThemeChange(theme.name)}>
+                    {theme.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
