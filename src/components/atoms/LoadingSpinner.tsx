@@ -3,7 +3,7 @@ interface LoadingSpinnerProps {
   text?: string;
 }
 
-export const LoadingSpinner = ({ size = 'md', text = 'Loading...' }: LoadingSpinnerProps) => {
+export const LoadingSpinner = ({ size = 'md', text = 'Cargando...' }: LoadingSpinnerProps) => {
   const sizeClasses = {
     sm: 'h-8 w-8',
     md: 'h-16 w-16',

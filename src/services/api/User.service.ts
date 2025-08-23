@@ -1,8 +1,8 @@
-import type { UsersResponseI } from "../../interfaces/users/Users.Interfaces";
+import type {
+  DataUsers,
+  UsersResponseI,
+} from "../../interfaces/users/Users.Interfaces";
 import { httpClient } from "../htttp.client.service";
-
-
-
 
 export class UserService {
   private httpClient: typeof httpClient;
@@ -12,7 +12,8 @@ export class UserService {
   }
 
   async getUsers(): Promise<UsersResponseI> {
-    const response = await this.httpClient.get('/users');
+    const response = await this.httpClient.get("/users");
     return response.data;
   }
+
 }

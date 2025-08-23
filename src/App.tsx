@@ -1,11 +1,10 @@
 import { AppRouter } from "./routes/App.routes"
-import { useThemeStore } from "./store/useTheme.store"
+import { ThemeProvider } from "./components/atoms/ThemeProvider"
 
 export const App = () => {
-  const { theme } = useThemeStore();
   return (
-    <div data-theme={theme}>
+    <ThemeProvider>
       <AppRouter />
-    </div>
+    </ThemeProvider>
   );
 };

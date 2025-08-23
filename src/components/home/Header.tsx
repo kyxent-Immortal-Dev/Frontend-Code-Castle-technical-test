@@ -76,15 +76,15 @@ export const Header = () => {
             >
               <li>
                 <a onClick={handleProfileClick} className="justify-between">
-                  Profile
-                  <span className="badge">New</span>
+                  Perfil
+                  <span className="badge badge-primary">Nuevo</span>
                 </a>
               </li>
               <li>
-                <a>Settings</a>
+                <a>Configuración</a>
               </li>
               <li>
-                <a onClick={handleLogout}>Logout</a>
+                <a onClick={handleLogout}>Cerrar Sesión</a>
               </li>
             </ul>
           </div>
@@ -95,41 +95,46 @@ export const Header = () => {
       <ModalComponent
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+        title="Perfil de Usuario"
+        size="md"
+        showCloseButton={true}
       >
-        <div className="p-6">
-          <h3 className="text-lg font-bold mb-4">User Profile</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-600">Name:</label>
-              <p className="text-gray-900">{user.name}</p>
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 p-4 bg-base-200 rounded-lg">
+            <div className="avatar placeholder">
+              <div className="bg-neutral text-neutral-content rounded-full w-16">
+                <span className="text-xl font-semibold">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-600">Email:</label>
-              <p className="text-gray-900">{user.email}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Role:</label>
-              <p className="text-gray-900 capitalize">{user.role}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Status:</label>
-              <p className={`text-sm ${user.is_active ? 'text-green-600' : 'text-red-600'}`}>
-                {user.is_active ? 'Active' : 'Inactive'}
-              </p>
+              <h4 className="text-lg font-semibold">{user.name}</h4>
+              <p className="text-sm opacity-70">{user.email}</p>
             </div>
           </div>
-          <div className="mt-6 flex gap-2">
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="stat bg-base-100 rounded-lg">
+              <div className="stat-title">Rol</div>
+              <div className="stat-value text-lg capitalize">{user.role}</div>
+            </div>
+            <div className="stat bg-base-100 rounded-lg">
+              <div className="stat-title">Estado</div>
+              <div className="stat-value text-lg">
+                <div className={`badge ${user.is_active ? 'badge-success' : 'badge-error'}`}>
+                  {user.is_active ? 'Activo' : 'Inactivo'}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex gap-2 pt-4">
             <button 
-              className="btn btn-primary"
-              onClick={() => setIsProfileModalOpen(false)}
-            >
-              Close
-            </button>
-            <button 
-              className="btn btn-outline btn-error"
+              className="btn btn-outline btn-error flex-1"
               onClick={handleLogout}
             >
-              Logout
+              Cerrar Sesión
             </button>
           </div>
         </div>
