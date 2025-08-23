@@ -3,11 +3,11 @@ import { Navigate } from 'react-router-dom';
 import { LoadingSpinner } from '../components/atoms/LoadingSpinner';
 import { useAuthService } from '../store/useAuth.service';
 
-interface AuthGuardProtectedProps {
+interface AuthGuardPublicProps {
   children: React.ReactNode;
 }
 
-export const AuthGuardProtected = ({ children }: AuthGuardProtectedProps) => {
+export const AuthGuardPublic = ({ children }: AuthGuardPublicProps) => {
   const { isAuthenticated, isLoading, checkAuth } = useAuthService();
 
   useEffect(() => {
@@ -20,11 +20,11 @@ export const AuthGuardProtected = ({ children }: AuthGuardProtectedProps) => {
     return <LoadingSpinner />;
   }
 
-  // If not authenticated, redirect to login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  // If already authenticated, redirect to home
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
   }
 
-  // If authenticated, render the protected content
+  // If not authenticated, render the public content
   return <>{children}</>;
-};
+}; 
