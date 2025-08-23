@@ -19,3 +19,9 @@ export interface LoginUserI {
     created_at:        Date;
     updated_at:        Date;
 }
+
+
+export interface LoginFormData {
+    email:    string;
+    password: string;
+}

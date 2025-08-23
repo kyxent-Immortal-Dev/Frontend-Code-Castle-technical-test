@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { LoginDataI, LoginUserI } from "../interfaces/auth/LoginI";
+import type { LoginFormData, LoginUserI } from "../interfaces/auth/LoginI";
 import type { RegisterDataI } from "../interfaces/auth/RegisterI";
 import { AuthService } from "../services/api/Auth.service";
 
@@ -7,7 +7,7 @@ interface AuthServiceStore {
   user: LoginUserI | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: Partial<LoginDataI>) => Promise<void>;
+  login: (data: Partial<LoginFormData>) => Promise<void>;
   register: (data: Partial<RegisterDataI>) => Promise<void>;
   logout: () => Promise<void>;
   profile: () => Promise<void>;

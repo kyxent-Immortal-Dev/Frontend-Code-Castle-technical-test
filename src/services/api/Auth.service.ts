@@ -1,4 +1,4 @@
-import type { LoginDataI, LoginResponseI } from "../../interfaces/auth/LoginI";
+import type { LoginFormData, LoginResponseI } from "../../interfaces/auth/LoginI";
 import type { LogoutResponseI } from "../../interfaces/auth/LogoutI";
 import type { RefreshResponseI } from "../../interfaces/auth/RefreshI";
 import type { ProfileResponseI } from "../../interfaces/auth/ProfileI";
@@ -15,7 +15,7 @@ export class AuthService {
     this.httpClient = httpClient;
   }
 
-  async login(data: Partial<LoginDataI>): Promise<LoginResponseI> {
+  async login(data: Partial<LoginFormData>): Promise<LoginResponseI> {
     const response = await this.httpClient.post<LoginResponseI>("/login", data);
     return response.data;
   }

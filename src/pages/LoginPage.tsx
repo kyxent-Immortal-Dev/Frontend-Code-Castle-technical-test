@@ -1,7 +1,9 @@
-import React from 'react'
+import { LoginForm } from "../components/auth/LoginForm";
 
 export const LoginPage = () => {
   return (
-    <div>LoginPage</div>
-  )
-}
+    <div className="flex flex-col items-center justify-center h-screen">
+      <LoginForm />
+    </div>
+  );
+};
