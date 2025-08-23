@@ -21,12 +21,14 @@ export const Sidebar = () => {
           <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
             {/* Sidebar content here */}
             <li>
-              <Link to="/home">Home</Link>
+              <Link to="/">Home</Link>
             </li>
             <li>
-              <Link to="/about">About</Link>
+              <Link to="/users">Users</Link>
             </li>
           </ul>
+
+          
         </div>
       </div>
     </>

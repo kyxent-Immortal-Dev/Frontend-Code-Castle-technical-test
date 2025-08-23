@@ -6,6 +6,7 @@ import { LoginPage } from '../pages/LoginPage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { AuthGuardProtected } from '../guards/Auth.guard.protected'
 import { AuthGuardPublic } from '../guards/Auth.guard.public'
+import { UsersListComponent } from '../components/users/UsersListComponent'
 
 export const AppRouter = () => {
   return (
@@ -18,6 +19,7 @@ export const AppRouter = () => {
           </AuthGuardProtected>
         }>
           <Route index element={<HomePage />} />
+          <Route path="/users" element={<UsersListComponent />} />  
         </Route>
         
         {/* Public routes - redirect if already authenticated */}

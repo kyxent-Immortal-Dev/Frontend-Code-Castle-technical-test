@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { LoadingSpinner } from '../components/atoms/LoadingSpinner';
 import { useAuthService } from '../store/useAuth.service';
 
 interface AuthGuardProtectedProps {
@@ -8,7 +7,7 @@ interface AuthGuardProtectedProps {
 }
 
 export const AuthGuardProtected = ({ children }: AuthGuardProtectedProps) => {
-  const { isAuthenticated, isLoading, checkAuth } = useAuthService();
+  const { isAuthenticated, checkAuth } = useAuthService();
 
   useEffect(() => {
     // Check authentication status on component mount
@@ -16,9 +15,7 @@ export const AuthGuardProtected = ({ children }: AuthGuardProtectedProps) => {
   }, [checkAuth]);
 
   // Show loading spinner while checking authentication
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+  
 
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
