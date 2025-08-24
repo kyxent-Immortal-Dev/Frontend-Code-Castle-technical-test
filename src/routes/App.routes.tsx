@@ -10,6 +10,8 @@ import { UsersPage } from '../pages/UsersPage'
 import { SupplierPage } from '../pages/SupplierPage'
 import { ProductsPage } from '../pages/ProductPage'
 import { PurchasePage } from '../pages/PurchasePage'
+import { ClientPage } from '../pages/ClientPage'
+import { SalesPage } from '../pages/SalesPage'
 
 export const AppRouter = () => {
   return (
@@ -26,6 +28,8 @@ export const AppRouter = () => {
           <Route path="/suppliers" element={<SupplierPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/purchases" element={<PurchasePage />} />
+          <Route path="/clients" element={<ClientPage />} />
+          <Route path="/sales" element={<SalesPage />} />
         </Route>
         
         {/* Public routes - redirect if already authenticated */}

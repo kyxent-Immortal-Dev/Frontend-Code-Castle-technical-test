@@ -30,6 +30,7 @@ export const Sidebar = () => {
     { path: '/suppliers', label: 'Proveedores', icon: Users },
     { path: '/products', label: 'Productos', icon: Box },
     { path: '/purchases', label: 'Compras', icon: Box },
+    { path: '/clients', label: 'Clientes', icon: Users },
     { path: '/settings', label: 'Configuración', icon: Settings },
 
   ];
