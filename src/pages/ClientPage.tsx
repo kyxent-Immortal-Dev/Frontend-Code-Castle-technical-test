@@ -1,4 +1,3 @@
-import React from 'react';
 import { ClientListComponent } from '../components/clients/ClientListComponent';
 
 export const ClientPage = () => {

@@ -22,8 +22,8 @@ export const usePurchasePermissions = (purchase: PurchaseInterface | null): Purc
     }
 
     const isPending = purchase.status === 'pending';
-    const isCompleted = purchase.status === 'completed';
-    const isCancelled = purchase.status === 'cancelled';
+    // const isCompleted = purchase.status === 'completed';
+    // const isCancelled = purchase.status === 'cancelled';
 
     return {
       canEdit: isPending,

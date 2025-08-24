@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { usePurchasesContext } from '../../hooks/usePurchasesContext';
 import type { PurchaseStats } from '../../context/purchases/PurchasesContextValue';
 
-export const PurchaseStats: React.FC = () => {
+export const PurchaseStatsComponent: React.FC = () => {
   const { getPurchaseStats } = usePurchasesContext();
   const [stats, setStats] = useState<PurchaseStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);

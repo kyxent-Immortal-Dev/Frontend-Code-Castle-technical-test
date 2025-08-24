@@ -1,4 +1,3 @@
-import React from "react";
 
 export const Footer = () => {
   return (
@@ -19,7 +18,7 @@ export const Footer = () => {
           <p>
             Sistema de Inventario
             <br />
-            Proporcionando tecnología confiable desde 2024
+            Ezequiel Campos todos los derechos reservados
           </p>
         </aside>
         <nav>

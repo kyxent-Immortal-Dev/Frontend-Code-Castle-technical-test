@@ -4,7 +4,7 @@ import type { PurchaseInterface } from '../../interfaces/inventary/Purchases.int
 import { CreateUpdatePurchase } from './CreateUpdatePurchase';
 import { PurchaseDetails } from './PurchaseDetails';
 import { DeleteConfirmation } from './DeleteConfirmation';
-import { PurchaseStats } from './PurchaseStats';
+import { PurchaseStatsComponent } from './PurchaseStats';
 import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import { ModalComponent } from '../atoms/ModalComponent';
 
@@ -171,7 +171,7 @@ export const PurchaseListComponent: React.FC = () => {
       </div>
 
       {/* Statistics Cards */}
-      <PurchaseStats />
+      <PurchaseStatsComponent />
 
       {/* Action Bar */}
       <div className="flex justify-between items-center mb-6">

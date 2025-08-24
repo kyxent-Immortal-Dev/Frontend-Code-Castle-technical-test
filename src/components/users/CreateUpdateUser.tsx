@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { DataUsers } from '../../interfaces/users/Users.Interfaces';
 import { useUsersContext } from '../../hooks/useUsersContext';

@@ -31,6 +31,7 @@ export const Sidebar = () => {
     { path: '/products', label: 'Productos', icon: Box },
     { path: '/purchases', label: 'Compras', icon: Box },
     { path: '/clients', label: 'Clientes', icon: Users },
+    { path: '/sales', label: 'Ventas', icon: Box },
     { path: '/settings', label: 'Configuración', icon: Settings },
 
   ];
