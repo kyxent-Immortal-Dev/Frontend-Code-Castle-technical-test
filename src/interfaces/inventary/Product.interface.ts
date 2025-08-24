@@ -22,3 +22,24 @@ export interface PurchaseDetail {
     purchase_price: string;
     subtotal:       string;
 }
+
+// User interface types for forms
+export interface CreateProductData {
+    name: string;
+    description: string;
+    unit_price: string;
+    stock: number;
+    is_active: boolean;
+}
+
+export interface UpdateProductData extends CreateProductData {
+    id: number;
+}
+
+export interface ProductFormData {
+    name: string;
+    description: string;
+    unit_price: string;
+    stock: number;
+    is_active: boolean;
+}

@@ -1,4 +1,4 @@
-import { Menu, Home, Users, Settings, LogOut, Shield } from "lucide-react";
+import { Menu, Home, Users, Settings, LogOut, Shield, Box } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthService } from "../../store/useAuth.service";
 import { useThemeStore } from "../../store/useTheme.store";
@@ -28,6 +28,7 @@ export const Sidebar = () => {
     { path: '/', label: 'Inicio', icon: Home },
     { path: '/users', label: 'Usuarios', icon: Users },
     { path: '/suppliers', label: 'Proveedores', icon: Users },
+    { path: '/products', label: 'Productos', icon: Box },
     { path: '/settings', label: 'Configuración', icon: Settings },
 
   ];
