@@ -12,13 +12,13 @@ export const CreateUpdateProduct: React.FC<CreateUpdateProductProps> = ({
   onClose, 
   product 
 }) => {
-  const { createProduct, updateProduct, isLoading } = useProductsContext();
+  const { createProduct, updateProduct } = useProductsContext();
   const isEditing = !!product;
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isSubmitting },
     reset
   } = useForm<ProductFormData>({
     mode: 'onChange',
@@ -59,10 +59,7 @@ export const CreateUpdateProduct: React.FC<CreateUpdateProductProps> = ({
           ...data
         });
       } else {
-        await createProduct({
-          ...data,
-          purchase_details: []
-        });
+        await createProduct(data);
       }
       onClose();
     } catch (error) {
@@ -152,7 +149,7 @@ export const CreateUpdateProduct: React.FC<CreateUpdateProductProps> = ({
               min="0"
               {...register('stock', { 
                 required: 'El stock es requerido',
-                min: { value: 0, message: 'El stock debe ser mayor o igual a 0' }
+                min: { value: 1, message: 'El stock debe ser mayor o igual a 1' }
               })}
               className={`input input-bordered w-full ${errors.stock ? 'input-error' : ''}`}
               placeholder="0"
@@ -183,16 +180,16 @@ export const CreateUpdateProduct: React.FC<CreateUpdateProductProps> = ({
             type="button"
             onClick={onClose}
             className="btn btn-ghost"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
             Cancelar
           </button>
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={isLoading || !isValid}
+            disabled={isSubmitting || !isValid}
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <span className="loading loading-spinner loading-sm"></span>
             ) : (
               isEditing ? 'Actualizar' : 'Crear'

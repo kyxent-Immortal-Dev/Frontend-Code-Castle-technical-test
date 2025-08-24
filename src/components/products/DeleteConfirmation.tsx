@@ -36,10 +36,10 @@ export const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
         </div>
 
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold mb-2">
             Error
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="opacity-70 mb-4">
             No se pudo cargar la información del producto para eliminar.
           </p>
         </div>
@@ -77,12 +77,12 @@ export const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="text-lg font-semibold mb-2">
           ¿Estás seguro?
         </h3>
-        <p className="text-gray-600 mb-4">
+        <p className="opacity-70 mb-4">
           No podrás revertir esta acción. El producto{' '}
-          <span className="font-semibold text-gray-900">"{product.name}"</span>{' '}
+          <span className="font-semibold">"{product.name}"</span>{' '}
           será eliminado permanentemente.
         </p>
       </div>

@@ -1,4 +1,4 @@
-import { Menu, Home, Users, Settings, LogOut, Shield, Box } from "lucide-react";
+import { Menu, Home, Users, Settings, LogOut, Shield, Box, ArrowRightToLine } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthService } from "../../store/useAuth.service";
 import { useThemeStore } from "../../store/useTheme.store";
@@ -64,6 +64,9 @@ export const Sidebar = () => {
                 <h2 className="text-xl font-bold">Sistema</h2>
                 <p className="text-sm opacity-70">Inventario</p>
               </div>
+                <div className="flex items-center gap-2">
+                  Cerrar <ArrowRightToLine className="cursor-pointer w-6 h-6" onClick={() => document.getElementById('my-drawer')?.click()} />
+                </div>
             </div>
 
             {/* User Info */}

@@ -35,40 +35,44 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
             setError(null);
             const response = await productService.createProduct(product as ProductInterface);
             if (response.success) {
-                await getProducts();
+                // Update products silently without triggering loading state
+                const newProduct = { ...product, id: Date.now(), purchase_details: [] } as ProductInterface;
+                setProducts(prev => [...prev, newProduct]);
             }
         } catch (error) {
             setError('Error al crear producto');
             console.error('Error creating product:', error);
             throw new Error('Error al crear producto');
         }
-    }, [getProducts]);
+    }, []);
 
     const updateProduct = useCallback(async (product: ProductInterface) => {
         try {
             setError(null);
             const response = await productService.updateProduct(product);
             if (response.success) {
-                await getProducts();
+                // Update products silently without triggering loading state
+                setProducts(prev => prev.map(p => p.id === product.id ? product : p));
             }
         } catch (error) {
             setError('Error al actualizar producto');
             console.error('Error updating product:', error);
             throw new Error('Error al actualizar producto');
         }
-    }, [getProducts]);
+    }, []);
 
     const deleteProduct = useCallback(async (id: number) => {
         try {
             setError(null);
             await productService.deleteProduct(id);
-            await getProducts();
+            // Update products silently without triggering loading state
+            setProducts(prev => prev.filter(p => p.id !== id));
         } catch (error) {
             setError('Error al eliminar producto');
             console.error('Error deleting product:', error);
             throw new Error('Error al eliminar producto');
         }
-    }, [getProducts]);
+    }, []);
 
     const getProductById = useCallback(async (id: number): Promise<ProductInterface | null> => {
         try {
