@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import type { RegisterDataI } from "../../interfaces/auth/RegisterI";
+import type { RegisterFormData } from "../../interfaces/auth/RegisterI";
 import { useAuthService } from "../../store/useAuth.service";
 
 export const RegisterForm = () => {
@@ -10,7 +10,7 @@ export const RegisterForm = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
-  } = useForm<RegisterDataI>({
+  } = useForm<RegisterFormData>({
     defaultValues: {
       name: "",
       email: "",
@@ -20,10 +20,10 @@ export const RegisterForm = () => {
     },
   });
 
-  const { register: registerUser, isLoading, error, clearError } = useAuthService();
+  const { register: registerUser, isLoading, clearError } = useAuthService();
   const password = watch("password");
 
-  const onSubmit = async (data: RegisterDataI): Promise<void> => {
+  const onSubmit = async (data: RegisterFormData): Promise<void> => {
     try {
       clearError();
       await registerUser(data);
@@ -38,6 +38,12 @@ export const RegisterForm = () => {
     <div className="w-full max-w-md mx-auto">
       <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
       
+      <div className="alert alert-info mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>New accounts are created with "Vendedor" role by default.</span>
+      </div>
     
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -82,19 +88,7 @@ export const RegisterForm = () => {
           )}
         </div>
         
-        <div className="flex flex-col gap-2">
-          <label htmlFor="role" className="text-sm font-medium">
-            Role
-          </label>
-          <select 
-            id="role" 
-            className="select select-bordered w-full"
-            {...register("role")}
-          >
-            <option value="vendedor">Vendedor</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
+
         
         <div className="flex flex-col gap-2">
           <label htmlFor="password" className="text-sm font-medium">

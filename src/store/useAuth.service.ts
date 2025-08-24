@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { LoginFormData, LoginUserI } from "../interfaces/auth/LoginI";
-import type { RegisterDataI } from "../interfaces/auth/RegisterI";
+import type { RegisterDataI, RegisterFormData } from "../interfaces/auth/RegisterI";
 import { AuthService } from "../services/api/Auth.service";
 
 interface AuthServiceStore {
@@ -9,7 +9,7 @@ interface AuthServiceStore {
   isLoading: boolean;
   error: string | null;
   login: (data: Partial<LoginFormData>) => Promise<void>;
-  register: (data: Partial<RegisterDataI>) => Promise<void>;
+  register: (data: Partial<RegisterFormData>) => Promise<void>;
   logout: () => Promise<void>;
   profile: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -47,7 +47,7 @@ export const useAuthService = create<AuthServiceStore>((set, get) => ({
   register: async (data) => {
     try {
       set({ isLoading: true, error: null });
-      const response = await new AuthService().register(data);
+      const response = await new AuthService().register(data as RegisterDataI);
       set({ 
         user: response.data.user, 
         isAuthenticated: true, 
