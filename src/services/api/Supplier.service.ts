@@ -12,6 +12,7 @@ export class SupplierService {
 
     async getSuppliers(): Promise<SupplierResponse> {
         const response = await this.httpClient.get("/suppliers");
+        // The backend returns paginated data, we need to extract the suppliers array
         return response.data;
     }
 
@@ -29,7 +30,7 @@ export class SupplierService {
         const response = await this.httpClient.delete(`/suppliers/${id}`);
         return response.data;
     }
-    
+
     
     
 }

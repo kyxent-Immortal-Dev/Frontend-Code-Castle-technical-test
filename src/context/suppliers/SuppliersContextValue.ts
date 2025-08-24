@@ -22,4 +22,4 @@ export const SuppliersContext = createContext<SuppliersContextType>({
     createSupplier: async () => {},
     updateSupplier: async () => {},
     deleteSupplier: async () => {},
-});
+}); 

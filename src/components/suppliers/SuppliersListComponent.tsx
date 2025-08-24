@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { useSuppliersContext } from '../../hooks/useSuppliersContext'
 import { CreateUpdateSupplier } from './CreateUpdateSupplier'
 import { DeleteConfirmation } from './DeleteConfirmation'
 import { SupplierDetails } from './SupplierDetails'
 import type { SupplierInterface } from '../../interfaces/inventary/Supliers.interface'
+import { useSuppliersContext } from '../../hooks/useSuppliersContext'
 
 export const SuppliersListComponent = () => {
   const { suppliers, isLoading, error, getSuppliers, deleteSupplier } = useSuppliersContext();
@@ -14,13 +14,21 @@ export const SuppliersListComponent = () => {
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierInterface | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Ensure suppliers is always an array
+  const suppliersArray = Array.isArray(suppliers) ? suppliers : [];
+  
+  // Debug: log the suppliers value
+  console.log('Suppliers from context:', suppliers);
+  console.log('Suppliers array:', suppliersArray);
+
   useEffect(() => {
     getSuppliers();
   }, [getSuppliers]);
 
-  const filteredSuppliers = suppliers.filter(supplier =>
+  const filteredSuppliers = suppliersArray.filter((supplier: SupplierInterface) =>
     supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    supplier.description.toLowerCase().includes(searchTerm.toLowerCase())
+    supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    supplier.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEdit = (supplier: SupplierInterface) => {
@@ -108,9 +116,9 @@ export const SuppliersListComponent = () => {
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Precio Unitario</th>
-              <th>Stock</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Dirección</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -126,13 +134,9 @@ export const SuppliersListComponent = () => {
               filteredSuppliers.map((supplier) => (
                 <tr key={supplier.id}>
                   <td className="font-medium">{supplier.name}</td>
-                  <td className="max-w-xs truncate">{supplier.description}</td>
-                  <td>${supplier.unit_price}</td>
-                  <td>
-                    <div className="badge badge-outline">
-                      {supplier.stock} unidades
-                    </div>
-                  </td>
+                  <td className="max-w-xs truncate">{supplier.email}</td>
+                  <td className="font-mono text-sm">{supplier.phone}</td>
+                  <td className="max-w-xs truncate">{supplier.address}</td>
                   <td>
                     <div className={`badge ${supplier.is_active ? 'badge-success' : 'badge-error'}`}>
                       {supplier.is_active ? 'Activo' : 'Inactivo'}

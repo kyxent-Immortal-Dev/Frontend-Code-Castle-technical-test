@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { SuppliersContext } from "../context/suppliers/SupplersContextValue";
+import { SuppliersContext } from "../context/suppliers/SuppliersContextValue";
 
 export const useSuppliersContext = () => {
     const context = useContext(SuppliersContext);

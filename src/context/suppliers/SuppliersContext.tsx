@@ -1,5 +1,5 @@
 import React, { useCallback, useState, type ReactNode } from "react";
-import { SuppliersContext } from "./SupplersContextValue";
+import { SuppliersContext } from "./SuppliersContextValue";
 import { SupplierService } from "../../services/api/Supplier.service";
 import type { SupplierInterface } from "../../interfaces/inventary/Supliers.interface";
 
@@ -21,8 +21,8 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
             setIsLoading(true);
             setError(null);
             const response = await supplierService.getSuppliers();
-            if (response.data) {
-                setSuppliers(response.data);
+            if (response.data && response.data.data) {
+                setSuppliers(response.data.data);
             }
         } catch (error) {
             setError('Error al obtener proveedores');
@@ -47,7 +47,7 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
         finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [getSuppliers]);
 
     const updateSupplier = useCallback(async (supplier: SupplierInterface) => {
         try {
@@ -60,6 +60,8 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
         } catch (error) {
             setError('Error al actualizar proveedor');
             console.error('Error updating supplier:', error);
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -75,7 +77,7 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [getSuppliers]);
 
     return (
         <SuppliersContext.Provider value={{ suppliers, isLoading, error, getSuppliers, createSupplier, updateSupplier, deleteSupplier }}>

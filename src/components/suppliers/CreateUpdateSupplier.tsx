@@ -16,9 +16,9 @@ export const CreateUpdateSupplier: React.FC<CreateUpdateSupplierProps> = ({
   const { createSupplier, updateSupplier, isLoading } = useSuppliersContext();
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    unit_price: '',
-    stock: 0,
+    email: '',
+    phone: '',
+    address: '',
     is_active: true
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -29,17 +29,17 @@ export const CreateUpdateSupplier: React.FC<CreateUpdateSupplierProps> = ({
     if (supplier) {
       setFormData({
         name: supplier.name,
-        description: supplier.description,
-        unit_price: supplier.unit_price,
-        stock: supplier.stock,
+        email: supplier.email,
+        phone: supplier.phone,
+        address: supplier.address,
         is_active: supplier.is_active
       });
     } else {
       setFormData({
         name: '',
-        description: '',
-        unit_price: '',
-        stock: 0,
+        email: '',
+        phone: '',
+        address: '',
         is_active: true
       });
     }
@@ -53,16 +53,18 @@ export const CreateUpdateSupplier: React.FC<CreateUpdateSupplierProps> = ({
       newErrors.name = 'El nombre es requerido';
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = 'La descripción es requerida';
+    if (!formData.email.trim()) {
+      newErrors.email = 'El email es requerido';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'El email no es válido';
     }
 
-    if (!formData.unit_price || parseFloat(formData.unit_price) <= 0) {
-      newErrors.unit_price = 'El precio unitario debe ser mayor a 0';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'El teléfono es requerido';
     }
 
-    if (formData.stock < 0) {
-      newErrors.stock = 'El stock no puede ser negativo';
+    if (!formData.address.trim()) {
+      newErrors.address = 'La dirección es requerida';
     }
 
     setErrors(newErrors);
@@ -84,7 +86,7 @@ export const CreateUpdateSupplier: React.FC<CreateUpdateSupplierProps> = ({
         await createSupplier({
           id: 0, // Will be assigned by the backend
           ...formData,
-          purchase_details: []
+          purchases: []
         });
       }
       onClose();
@@ -143,68 +145,62 @@ export const CreateUpdateSupplier: React.FC<CreateUpdateSupplierProps> = ({
             )}
           </div>
 
-          {/* Descripción */}
+          {/* Email */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Descripción *</span>
+              <span className="label-text">Email *</span>
             </label>
-            <textarea
-              name="description"
-              value={formData.description}
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleInputChange}
-              className={`textarea textarea-bordered w-full ${errors.description ? 'textarea-error' : ''}`}
-              placeholder="Descripción del proveedor"
-              rows={3}
+              className={`input input-bordered w-full ${errors.email ? 'input-error' : ''}`}
+              placeholder="email@ejemplo.com"
             />
-            {errors.description && (
+            {errors.email && (
               <label className="label">
-                <span className="label-text-alt text-error">{errors.description}</span>
+                <span className="label-text-alt text-error">{errors.email}</span>
               </label>
             )}
           </div>
 
-          {/* Precio Unitario y Stock */}
+          {/* Teléfono y Dirección */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Precio Unitario *</span>
+                <span className="label-text">Teléfono *</span>
               </label>
-              <div className="input-group">
-                <span className="input-group-text">$</span>
-                <input
-                  type="number"
-                  name="unit_price"
-                  value={formData.unit_price}
-                  onChange={handleInputChange}
-                  className={`input input-bordered w-full ${errors.unit_price ? 'input-error' : ''}`}
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              {errors.unit_price && (
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className={`input input-bordered w-full ${errors.phone ? 'input-error' : ''}`}
+                placeholder="+1 (555) 123-4567"
+              />
+              {errors.phone && (
                 <label className="label">
-                  <span className="label-text-alt text-error">{errors.unit_price}</span>
+                  <span className="label-text-alt text-error">{errors.phone}</span>
                 </label>
               )}
             </div>
 
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Stock</span>
+                <span className="label-text">Dirección *</span>
               </label>
               <input
-                type="number"
-                name="stock"
-                value={formData.stock}
+                type="text"
+                name="address"
+                value={formData.address}
                 onChange={handleInputChange}
-                className={`input input-bordered w-full ${errors.stock ? 'input-error' : ''}`}
-                placeholder="0"
-                min="0"
+                className={`input input-bordered w-full ${errors.address ? 'input-error' : ''}`}
+                placeholder="123 Business St, City, State 12345"
               />
-              {errors.stock && (
+              {errors.address && (
                 <label className="label">
-                  <span className="label-text-alt text-error">{errors.stock}</span>
+                  <span className="label-text-alt text-error">{errors.address}</span>
                 </label>
               )}
             </div>

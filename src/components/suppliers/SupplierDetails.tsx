@@ -32,18 +32,18 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
                       <span>{supplier.name}</span>
                     </div>
                     <div className="flex justify-between">
+                      <span className="font-medium">Email:</span>
+                      <span className="font-mono">{supplier.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Teléfono:</span>
+                      <span className="font-mono">{supplier.phone}</span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="font-medium">Estado:</span>
                       <div className={`badge ${supplier.is_active ? 'badge-success' : 'badge-error'}`}>
                         {supplier.is_active ? 'Activo' : 'Inactivo'}
                       </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Precio Unitario:</span>
-                      <span className="font-mono">${supplier.unit_price}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Stock:</span>
-                      <span className="font-mono">{supplier.stock} unidades</span>
                     </div>
                   </div>
                 </div>
@@ -51,10 +51,10 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
             </div>
 
             <div>
-              <h4 className="font-semibold text-base-content mb-2">Descripción</h4>
+              <h4 className="font-semibold text-base-content mb-2">Dirección</h4>
               <div className="card bg-base-200 p-4">
                 <p className="text-base-content/80 leading-relaxed">
-                  {supplier.description}
+                  {supplier.address}
                 </p>
               </div>
             </div>
@@ -63,10 +63,10 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
           {/* Historial de Compras */}
           <div>
             <h4 className="font-semibold text-base-content mb-3">
-              Historial de Compras ({supplier.purchase_details.length})
+              Historial de Compras ({supplier.purchases.length})
             </h4>
             
-            {supplier.purchase_details.length === 0 ? (
+            {supplier.purchases.length === 0 ? (
               <div className="card bg-base-200 p-6 text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-base-content/30 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -79,24 +79,24 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
                   <thead>
                     <tr>
                       <th>ID Compra</th>
-                      <th>Producto ID</th>
-                      <th>Cantidad</th>
-                      <th>Precio Compra</th>
-                      <th>Subtotal</th>
+                      <th>Usuario ID</th>
+                      <th>Fecha</th>
+                      <th>Monto Total</th>
+                      <th>Estado</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {supplier.purchase_details.map((detail) => (
-                      <tr key={detail.id}>
-                        <td className="font-mono text-sm">#{detail.purchase_id}</td>
-                        <td className="font-mono text-sm">#{detail.product_id}</td>
+                    {supplier.purchases.map((purchase) => (
+                      <tr key={purchase.id}>
+                        <td className="font-mono text-sm">#{purchase.id}</td>
+                        <td className="font-mono text-sm">#{purchase.user_id}</td>
+                        <td className="text-sm">{new Date(purchase.purchase_date).toLocaleDateString()}</td>
+                        <td className="font-mono font-medium">${purchase.total_amount}</td>
                         <td>
-                          <div className="badge badge-outline">
-                            {detail.quantity}
+                          <div className={`badge ${purchase.status === 'completed' ? 'badge-success' : 'badge-warning'}`}>
+                            {purchase.status}
                           </div>
                         </td>
-                        <td className="font-mono">${detail.purchase_price}</td>
-                        <td className="font-mono font-medium">${detail.subtotal}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -109,22 +109,24 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="stat bg-base-200 rounded-lg">
               <div className="stat-title">Total Compras</div>
-              <div className="stat-value text-primary">{supplier.purchase_details.length}</div>
+              <div className="stat-value text-primary">{supplier.purchases.length}</div>
               <div className="stat-desc">Transacciones realizadas</div>
             </div>
             
             <div className="stat bg-base-200 rounded-lg">
-              <div className="stat-title">Stock Actual</div>
-              <div className="stat-value text-secondary">{supplier.stock}</div>
-              <div className="stat-desc">Unidades disponibles</div>
+              <div className="stat-title">Compras Pendientes</div>
+              <div className="stat-value text-secondary">
+                {supplier.purchases.filter(p => p.status === 'pending').length}
+              </div>
+              <div className="stat-desc">Por completar</div>
             </div>
             
             <div className="stat bg-base-200 rounded-lg">
-              <div className="stat-title">Valor Total</div>
+              <div className="stat-title">Valor Total Compras</div>
               <div className="stat-value text-accent">
-                ${(parseFloat(supplier.unit_price) * supplier.stock).toFixed(2)}
+                ${supplier.purchases.reduce((sum, p) => sum + parseFloat(p.total_amount), 0).toFixed(2)}
               </div>
-              <div className="stat-desc">Stock × Precio unitario</div>
+              <div className="stat-desc">Suma de todas las compras</div>
             </div>
           </div>
         </div>
