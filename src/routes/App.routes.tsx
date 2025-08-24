@@ -9,6 +9,7 @@ import { AuthGuardPublic } from '../guards/Auth.guard.public'
 import { UsersPage } from '../pages/UsersPage'
 import { SupplierPage } from '../pages/SupplierPage'
 import { ProductsPage } from '../pages/ProductPage'
+import { PurchasePage } from '../pages/PurchasePage'
 
 export const AppRouter = () => {
   return (
@@ -24,6 +25,7 @@ export const AppRouter = () => {
           <Route path="/users" element={<UsersPage />} />  
           <Route path="/suppliers" element={<SupplierPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/purchases" element={<PurchasePage />} />
         </Route>
         
         {/* Public routes - redirect if already authenticated */}

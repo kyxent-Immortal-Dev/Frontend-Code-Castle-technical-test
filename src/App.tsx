@@ -3,6 +3,7 @@ import { ThemeProvider } from "./components/atoms/ThemeProvider";
 import { UsersProvider } from "./context/users/UsersContext";
 import { SuppliersProvider } from "./context/suppliers/SuppliersContext";
 import { ProductsProvider } from "./context/Products/ProductsContext";
+import { PurchasesProvider } from "./context/purchases/PurchasesContext";
 import { ErrorBoundary } from "./components/atoms/ErrorBoundary";
 
 export const App = () => {
@@ -11,9 +12,11 @@ export const App = () => {
       <UsersProvider>
         <SuppliersProvider>
           <ProductsProvider>
-            <ThemeProvider>
-              <AppRouter />
-            </ThemeProvider>
+            <PurchasesProvider>
+              <ThemeProvider>
+                <AppRouter />
+              </ThemeProvider>
+            </PurchasesProvider>
           </ProductsProvider>
         </SuppliersProvider>
       </UsersProvider>

@@ -29,6 +29,7 @@ export const Sidebar = () => {
     { path: '/users', label: 'Usuarios', icon: Users },
     { path: '/suppliers', label: 'Proveedores', icon: Users },
     { path: '/products', label: 'Productos', icon: Box },
+    { path: '/purchases', label: 'Compras', icon: Box },
     { path: '/settings', label: 'Configuración', icon: Settings },
 
   ];
@@ -57,7 +58,7 @@ export const Sidebar = () => {
             <div className="flex items-center gap-3 mb-8 p-4 bg-base-100 rounded-lg">
               <div className="avatar placeholder">
                 <div className="bg-primary text-primary-content rounded-full w-12">
-                  <Shield className="w-6 h-6" />
+                  <Shield className="w-6 h-6 absolute top-0 right-0 left-0 bottom-0 m-auto" />
                 </div>
               </div>
               <div>
