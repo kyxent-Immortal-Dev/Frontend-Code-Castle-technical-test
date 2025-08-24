@@ -27,7 +27,9 @@ export const Sidebar = () => {
   const menuItems = [
     { path: '/', label: 'Inicio', icon: Home },
     { path: '/users', label: 'Usuarios', icon: Users },
+    { path: '/suppliers', label: 'Proveedores', icon: Users },
     { path: '/settings', label: 'Configuración', icon: Settings },
+
   ];
 
   return (
@@ -36,9 +38,9 @@ export const Sidebar = () => {
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           {/* Page content here */}
-          <label htmlFor="my-drawer" className="btn btn-ghost btn-circle drawer-button">
+          <button onClick={() => document.getElementById('my-drawer')?.click()} className="drawer-button cursor-pointer btn btn-ghost btn-circle">
             <Menu className="w-6 h-6" />
-          </label>
+          </button>
         </div>
         <div className="drawer-side z-50">
           <label

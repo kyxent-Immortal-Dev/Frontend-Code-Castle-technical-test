@@ -1,4 +1,3 @@
-import React from 'react'
 import { UsersListComponent } from '../components/users/UsersListComponent'
 
 export const UsersPage = () => {

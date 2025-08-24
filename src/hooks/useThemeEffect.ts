@@ -5,7 +5,7 @@ export const useThemeEffect = () => {
   const { theme } = useThemeStore();
 
   useEffect(() => {
-    // Apply theme to HTML element for DaisyUI
+    // Apply theme to HTML element 
     document.documentElement.setAttribute('data-theme', theme);
     
     // Also update body class for additional styling if needed

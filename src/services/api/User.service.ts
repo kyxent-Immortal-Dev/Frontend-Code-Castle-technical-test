@@ -16,4 +16,23 @@ export class UserService {
     return response.data;
   }
 
+  async createUser(user: DataUsers): Promise<UsersResponseI> {
+    const response = await this.httpClient.post("/users", user);
+    return response.data;
+  }
+
+  async updateUser(user: DataUsers): Promise<UsersResponseI> {
+    const response = await this.httpClient.put(`/users/${user.id}`, user);
+    return response.data;
+  }
+
+  async deleteUser(id: string): Promise<UsersResponseI> {
+    const response = await this.httpClient.delete(`/users/${id}`);
+    return response.data;
+  }
+
+  async getUserById(id: string): Promise<UsersResponseI> {
+    const response = await this.httpClient.get(`/users/${id}`);
+    return response.data;
+  }
 }
