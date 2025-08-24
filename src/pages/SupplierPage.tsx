@@ -1,4 +1,3 @@
-import React from 'react'
 import { SuppliersProvider } from '../context/suppliers/SuppliersContext'
 import { SuppliersListComponent } from '../components/suppliers/SuppliersListComponent'
 

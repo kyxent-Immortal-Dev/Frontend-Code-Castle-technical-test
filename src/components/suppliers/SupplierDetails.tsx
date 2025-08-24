@@ -2,22 +2,18 @@ import React from 'react'
 import type { SupplierInterface } from '../../interfaces/inventary/Supliers.interface'
 
 interface SupplierDetailsProps {
-  isOpen: boolean;
   onClose: () => void;
   supplier: SupplierInterface;
 }
 
 export const SupplierDetails: React.FC<SupplierDetailsProps> = ({ 
-  isOpen, 
   onClose, 
   supplier 
 }) => {
-  if (!isOpen) return null;
 
   return (
-    <div className="modal modal-open">
-      <div className="modal-box max-w-4xl">
-        <h3 className="font-bold text-lg mb-4">Detalles del Proveedor</h3>
+    <div className="space-y-6">
+      <h3 className="font-bold text-lg mb-4">Detalles del Proveedor</h3>
         
         <div className="space-y-6">
           {/* Información Principal */}
@@ -132,7 +128,7 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
         </div>
 
         {/* Botón Cerrar */}
-        <div className="modal-action">
+        <div className="flex justify-end pt-4">
           <button
             onClick={onClose}
             className="btn btn-primary"
@@ -141,9 +137,5 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
           </button>
         </div>
       </div>
-      
-      {/* Backdrop */}
-      <div className="modal-backdrop" onClick={onClose}></div>
-    </div>
   )
 }

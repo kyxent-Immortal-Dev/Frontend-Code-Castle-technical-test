@@ -47,7 +47,6 @@ export interface Purchase {
     notes: string;
 }
 
-// Legacy interface for backward compatibility (if needed)
 export interface PurchaseDetail {
     id: number;
     purchase_id: number;

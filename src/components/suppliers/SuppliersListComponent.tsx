@@ -1,219 +1,369 @@
-import React, { useEffect, useState } from 'react'
-import { CreateUpdateSupplier } from './CreateUpdateSupplier'
-import { DeleteConfirmation } from './DeleteConfirmation'
-import { SupplierDetails } from './SupplierDetails'
-import type { SupplierInterface } from '../../interfaces/inventary/Supliers.interface'
-import { useSuppliersContext } from '../../hooks/useSuppliersContext'
+import React, { useState, useEffect } from 'react';
+import type { SupplierInterface } from '../../interfaces/inventary/Supliers.interface';
+import { CreateUpdateSupplier } from './CreateUpdateSupplier';
+import { DeleteConfirmation } from './DeleteConfirmation';
+import { SupplierDetails } from './SupplierDetails';
+import { ModalComponent } from '../atoms/ModalComponent';
+import { LoadingSpinner } from '../atoms/LoadingSpinner';
+import { Toast } from '../atoms/Toast';
+import { useSuppliersContext } from '../../hooks/useSuppliersContext';
 
-export const SuppliersListComponent = () => {
+export const SuppliersListComponent: React.FC = () => {
   const { suppliers, isLoading, error, getSuppliers, deleteSupplier } = useSuppliersContext();
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<SupplierInterface | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // Ensure suppliers is always an array
-  const suppliersArray = Array.isArray(suppliers) ? suppliers : [];
   
-  // Debug: log the suppliers value
-  console.log('Suppliers from context:', suppliers);
-  console.log('Suppliers array:', suppliersArray);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<SupplierInterface | null>(null);
+  const [editingSupplier, setEditingSupplier] = useState<SupplierInterface | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
+    message: '',
+    type: 'info',
+    isVisible: false,
+  });
 
   useEffect(() => {
     getSuppliers();
-  }, [getSuppliers]);
+  }, []);
 
-  const filteredSuppliers = suppliersArray.filter((supplier: SupplierInterface) =>
+  const handleDeleteSupplier = async (id: number) => {
+    try {
+      await deleteSupplier(id);
+      setIsDeleteModalOpen(false);
+      setSelectedSupplier(null);
+      showToast('Proveedor eliminado exitosamente', 'success');
+    } catch {
+      showToast('Error al eliminar proveedor', 'error');
+    }
+  };
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
+    setToast({ message, type, isVisible: true });
+  };
+
+  const closeToast = () => {
+    setToast({ ...toast, isVisible: false });
+  };
+
+  const openCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const openEditModal = (supplier: SupplierInterface) => {
+    setEditingSupplier(supplier);
+    setIsEditModalOpen(true);
+  };
+
+  const openViewModal = (supplier: SupplierInterface) => {
+    setSelectedSupplier(supplier);
+    setIsViewModalOpen(true);
+  };
+
+  const openDeleteModal = (supplier: SupplierInterface) => {
+    setSelectedSupplier(supplier);
+    setIsDeleteModalOpen(true);
+  };
+
+  const filteredSuppliers = suppliers.filter((supplier: SupplierInterface) =>
     supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     supplier.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleEdit = (supplier: SupplierInterface) => {
-    setSelectedSupplier(supplier);
-    setShowEditModal(true);
-  };
-
-  const handleDelete = (supplier: SupplierInterface) => {
-    setSelectedSupplier(supplier);
-    setShowDeleteModal(true);
-  };
-
-  const handleViewDetails = (supplier: SupplierInterface) => {
-    setSelectedSupplier(supplier);
-    setShowDetailsModal(true);
-  };
-
-  const confirmDelete = async () => {
-    if (selectedSupplier) {
-      await deleteSupplier(selectedSupplier.id);
-      setShowDeleteModal(false);
-      setSelectedSupplier(null);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-96">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
+  if (isLoading && suppliers.length === 0) {
+    return <LoadingSpinner text="Cargando proveedores..." />;
   }
 
   if (error) {
     return (
       <div className="alert alert-error">
-        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>{error}</span>
+        <span>Error: {error}</span>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-base-content">Proveedores</h1>
-          <p className="text-base-content/70">Gestiona tu inventario de proveedores</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-base-content mb-2">Gestión de Proveedores</h1>
+        <p className="text-base-content/70">Administra los proveedores del sistema y su información de contacto</p>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="stat bg-base-100 shadow-lg rounded-lg">
+          <div className="stat-figure text-primary">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div className="stat-title">Total de Proveedores</div>
+          <div className="stat-value text-primary">{suppliers.length}</div>
+          <div className="stat-desc">Registrados en el sistema</div>
         </div>
-        <button 
-          onClick={() => setShowCreateModal(true)}
-          className="btn btn-primary"
+
+        <div className="stat bg-base-100 shadow-lg rounded-lg">
+          <div className="stat-figure text-success">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="stat-title">Proveedores Activos</div>
+          <div className="stat-value text-success">{suppliers.filter(s => s.is_active).length}</div>
+          <div className="stat-desc">Cuentas activas actualmente</div>
+        </div>
+
+        <div className="stat bg-base-100 shadow-lg rounded-lg">
+          <div className="stat-figure text-info">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <div className="stat-title">Total Compras</div>
+          <div className="stat-value text-info">
+            {suppliers.reduce((total, s) => total + s.purchases.length, 0)}
+          </div>
+          <div className="stat-desc">Transacciones realizadas</div>
+        </div>
+      </div>
+
+      {/* Search and Action Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="form-control w-full max-w-md">
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Buscar proveedores..."
+              className="input input-bordered w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button className="btn btn-square">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <button
+          onClick={openCreateModal}
+          className="btn btn-primary btn-lg"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          Nuevo Proveedor
+          + Nuevo Proveedor
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="form-control w-full max-w-md">
-        <div className="input-group">
-          <input
-            type="text"
-            placeholder="Buscar proveedores..."
-            className="input input-bordered w-full"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button className="btn btn-square">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
       {/* Suppliers Table */}
-      <div className="overflow-x-auto">
-        <table className="table table-zebra w-full">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Teléfono</th>
-              <th>Dirección</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSuppliers.length === 0 ? (
+      <div className="bg-base-100 shadow-lg rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="table table-zebra w-full">
+            <thead className="bg-primary text-primary-content">
               <tr>
-                <td colSpan={6} className="text-center py-8 text-base-content/70">
-                  {searchTerm ? 'No se encontraron proveedores' : 'No hay proveedores registrados'}
-                </td>
+                <th>Proveedor</th>
+                <th>Contacto</th>
+                <th>Dirección</th>
+                <th>Estado</th>
+                <th>Compras</th>
+                <th>Acciones</th>
               </tr>
-            ) : (
-              filteredSuppliers.map((supplier) => (
-                <tr key={supplier.id}>
-                  <td className="font-medium">{supplier.name}</td>
-                  <td className="max-w-xs truncate">{supplier.email}</td>
-                  <td className="font-mono text-sm">{supplier.phone}</td>
-                  <td className="max-w-xs truncate">{supplier.address}</td>
+            </thead>
+            <tbody>
+              {filteredSuppliers.map((supplier) => (
+                <tr key={supplier.id} className="hover:bg-base-200">
                   <td>
-                    <div className={`badge ${supplier.is_active ? 'badge-success' : 'badge-error'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="avatar placeholder">
+                        <div className="bg-neutral text-neutral-content rounded-full w-10">
+                          <span className="text-sm font-semibold">
+                            {supplier.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-bold">{supplier.name}</div>
+                        <div className="text-sm opacity-70">ID: #{supplier.id}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium">{supplier.email}</div>
+                      <div className="text-sm opacity-70 font-mono">{supplier.phone}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="max-w-xs truncate text-sm opacity-80">
+                      {supplier.address}
+                    </div>
+                  </td>
+                  <td>
+                    <div className={`badge badge-${supplier.is_active ? 'success' : 'error'} badge-outline`}>
                       {supplier.is_active ? 'Activo' : 'Inactivo'}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="badge badge-outline">
+                      {supplier.purchases.length} compras
                     </div>
                   </td>
                   <td>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleViewDetails(supplier)}
-                        className="btn btn-ghost btn-sm"
+                        onClick={() => openViewModal(supplier)}
+                        className="btn btn-sm btn-outline btn-info"
                         title="Ver detalles"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleEdit(supplier)}
-                        className="btn btn-ghost btn-sm"
+                        onClick={() => openEditModal(supplier)}
+                        className="btn btn-sm btn-outline btn-warning"
                         title="Editar"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleDelete(supplier)}
-                        className="btn btn-ghost btn-sm text-error"
+                        onClick={() => openDeleteModal(supplier)}
+                        className="btn btn-sm btn-outline btn-error"
                         title="Eliminar"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredSuppliers.length === 0 && !isLoading && (
+          <div className="text-center py-12">
+            <div className="text-base-content/50 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">
+              {searchTerm ? 'No se encontraron proveedores' : 'No hay proveedores registrados'}
+            </h3>
+            <p className="text-base-content/70 mb-4">
+              {searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando el primer proveedor al sistema'}
+            </p>
+            {!searchTerm && (
+              <button
+                onClick={openCreateModal}
+                className="btn btn-primary btn-lg gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Agregar Proveedor
+              </button>
             )}
-          </tbody>
-        </table>
+          </div>
+        )}
       </div>
 
       {/* Modals */}
-      {showCreateModal && (
+      <ModalComponent
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="Crear Nuevo Proveedor"
+        size="lg"
+        showCloseButton={true}
+      >
         <CreateUpdateSupplier
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
+          onClose={() => setIsCreateModalOpen(false)}
           supplier={null}
         />
-      )}
+      </ModalComponent>
 
-      {showEditModal && selectedSupplier && (
-        <CreateUpdateSupplier
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
+      <ModalComponent
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingSupplier(null);
+        }}
+        title="Editar Proveedor"
+        size="lg"
+        showCloseButton={true}
+      >
+        {editingSupplier && (
+          <CreateUpdateSupplier
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setEditingSupplier(null);
+            }}
+            supplier={editingSupplier}
+          />
+        )}
+      </ModalComponent>
+
+      <ModalComponent
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedSupplier(null);
+        }}
+        title="Detalles del Proveedor"
+        size="lg"
+        showCloseButton={true}
+      >
+        {selectedSupplier && (
+                  <SupplierDetails
+          onClose={() => {
+            setIsViewModalOpen(false);
+            setSelectedSupplier(null);
+          }}
           supplier={selectedSupplier}
         />
-      )}
+        )}
+      </ModalComponent>
 
-      {showDeleteModal && selectedSupplier && (
-        <DeleteConfirmation
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={confirmDelete}
+      <ModalComponent
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedSupplier(null);
+        }}
+        title="Confirmar Eliminación"
+        size="md"
+        showCloseButton={true}
+      >
+        {selectedSupplier && (
+                  <DeleteConfirmation
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setSelectedSupplier(null);
+          }}
+          onConfirm={() => handleDeleteSupplier(selectedSupplier.id)}
           supplierName={selectedSupplier.name}
         />
-      )}
+        )}
+      </ModalComponent>
 
-      {showDetailsModal && selectedSupplier && (
-        <SupplierDetails
-          isOpen={showDetailsModal}
-          onClose={() => setShowDetailsModal(false)}
-          supplier={selectedSupplier}
-        />
-      )}
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
+      />
     </div>
-  )
-}
+  );
+};

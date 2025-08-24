@@ -1,4 +1,4 @@
-import React, { useCallback, useState, type ReactNode } from "react";
+import React, { useCallback, useState, useMemo, type ReactNode } from "react";
 import { SuppliersContext } from "./SuppliersContextValue";
 import { SupplierService } from "../../services/api/Supplier.service";
 import type { SupplierInterface } from "../../interfaces/inventary/Supliers.interface";
@@ -8,13 +8,13 @@ import type { SupplierInterface } from "../../interfaces/inventary/Supliers.inte
 interface SuppliersProviderProps {
     children: ReactNode;
 }
+const supplierService = new SupplierService();
 
 export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }) => {
     const [suppliers, setSuppliers] = useState<SupplierInterface[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const supplierService = new SupplierService();
 
     const getSuppliers = useCallback(async () => {
         try {
@@ -34,7 +34,6 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
 
     const createSupplier = useCallback(async (supplier: SupplierInterface) => {
         try {
-            setIsLoading(true);
             setError(null);
             const response = await supplierService.createSupplier(supplier);
             if (response.data) {
@@ -43,15 +42,12 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
         } catch (error) {
             setError('Error al crear proveedor');
             console.error('Error creating supplier:', error);
+            throw new Error('Error al crear proveedor');
         }
-        finally {
-            setIsLoading(false);
-        }
-    }, [getSuppliers]);
+    }, []);
 
     const updateSupplier = useCallback(async (supplier: SupplierInterface) => {
         try {
-            setIsLoading(true);
             setError(null);
             const response = await supplierService.updateSupplier(supplier);
             if (response.data) {
@@ -60,27 +56,34 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
         } catch (error) {
             setError('Error al actualizar proveedor');
             console.error('Error updating supplier:', error);
-        } finally {
-            setIsLoading(false);
+            throw new Error('Error al actualizar proveedor');
         }
     }, []);
 
     const deleteSupplier = useCallback(async (id: number) => {
         try {
-            setIsLoading(true);
             setError(null); 
             await supplierService.deleteSupplier(id);
             await getSuppliers();
         } catch (error) {
             setError('Error al eliminar proveedor');
             console.error('Error deleting supplier:', error);
-        } finally {
-            setIsLoading(false);
+            throw new Error('Error al eliminar proveedor');
         }
-    }, [getSuppliers]);
+    }, []);
+
+    const contextValue = useMemo(() => ({
+        suppliers, 
+        isLoading, 
+        error, 
+        getSuppliers, 
+        createSupplier, 
+        updateSupplier, 
+        deleteSupplier
+    }), [suppliers, isLoading, error, getSuppliers, createSupplier, updateSupplier, deleteSupplier]);
 
     return (
-        <SuppliersContext.Provider value={{ suppliers, isLoading, error, getSuppliers, createSupplier, updateSupplier, deleteSupplier }}>
+        <SuppliersContext.Provider value={contextValue}>
             {children}
         </SuppliersContext.Provider>
     );

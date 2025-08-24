@@ -27,7 +27,7 @@ export const UsersListComponent: React.FC = () => {
 
   useEffect(() => {
     getUsers();
-  }, [getUsers]);
+  }, []);
 
   const handleDeleteUser = async (id: string) => {
     try {

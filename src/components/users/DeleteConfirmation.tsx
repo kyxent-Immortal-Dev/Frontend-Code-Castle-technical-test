@@ -1,4 +1,5 @@
 import type { DataUsers } from '../../interfaces/users/Users.Interfaces';
+import { useUsersContext } from '../../hooks/useUsersContext';
 
 interface DeleteConfirmationProps {
   user: DataUsers | null;
@@ -7,6 +8,9 @@ interface DeleteConfirmationProps {
 }
 
 export const DeleteConfirmation = ({ user, onConfirm, onCancel }: DeleteConfirmationProps) => {
+
+  const {isLoading} = useUsersContext();
+
   if (!user) {
     return (
       <div className="text-center py-8">
@@ -71,6 +75,7 @@ export const DeleteConfirmation = ({ user, onConfirm, onCancel }: DeleteConfirma
         <button 
           onClick={onConfirm}
           className="btn btn-error btn-lg"
+          disabled={isLoading}
         >
           Sí, Eliminar
         </button>

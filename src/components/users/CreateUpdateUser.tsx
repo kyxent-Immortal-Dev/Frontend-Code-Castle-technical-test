@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import type { DataUsers } from '../../interfaces/users/Users.Interfaces';
 import { useUsersContext } from '../../hooks/useUsersContext';
 
@@ -26,19 +27,30 @@ interface UserWithPassword extends Omit<DataUsers, 'id' | 'email_verified_at' | 
 
 export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProps) => {
   const { createUser, updateUser } = useUsersContext();
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<UserFormData>({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    role: 'vendedor',
-    is_active: true
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+    reset,
+    watch
+  } = useForm<UserFormData>({
+    mode: 'onChange',
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      password_confirmation: '',
+      role: 'vendedor',
+      is_active: true
+    }
   });
+
+  const watchedPassword = watch('password');
 
   useEffect(() => {
     if (mode === 'edit' && user) {
-      setFormData({
+      reset({
         name: user.name,
         email: user.email,
         password: '',
@@ -46,49 +58,45 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
         role: user.role,
         is_active: user.is_active
       });
+    } else {
+      reset({
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+        role: 'vendedor',
+        is_active: true
+      });
     }
-  }, [mode, user]);
+  }, [mode, user, reset]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
+  const onSubmit = async (data: UserFormData) => {
     try {
       if (mode === 'create') {
         // For create, we need to send the form data
         const createData = {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          password_confirmation: formData.password_confirmation,
-          role: formData.role,
-          is_active: formData.is_active
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
+          role: data.role,
+          is_active: data.is_active
         };
         await createUser(createData as unknown as DataUsers);
       } else if (mode === 'edit' && user) {
         // For edit, we need to send the complete user data
         const updateData = { 
           ...user,
-          name: formData.name,
-          email: formData.email,
-          role: formData.role,
-          is_active: formData.is_active
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          is_active: data.is_active
         };
         
         // Only include password if it was changed
-        if (formData.password) {
-          (updateData as UserWithPassword).password = formData.password;
-          (updateData as UserWithPassword).password_confirmation = formData.password_confirmation;
+        if (data.password) {
+          (updateData as UserWithPassword).password = data.password;
+          (updateData as UserWithPassword).password_confirmation = data.password_confirmation;
         }
         
         await updateUser(updateData);
@@ -96,20 +104,11 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
       onSuccess();
     } catch (error) {
       console.error('Error saving user:', error);
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const isFormValid = () => {
-    if (mode === 'create') {
-      return formData.name && formData.email && formData.password && formData.password_confirmation;
-    }
-    return formData.name && formData.email;
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Name Field */}
       <div className="form-control">
         <label className="label">
@@ -117,13 +116,18 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
         </label>
         <input
           type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          className="input input-bordered w-full"
+          {...register('name', { 
+            required: 'El nombre es requerido',
+            minLength: { value: 2, message: 'El nombre debe tener al menos 2 caracteres' }
+          })}
+          className={`input input-bordered w-full ${errors.name ? 'input-error' : ''}`}
           placeholder="Ingresa el nombre completo"
-          required
         />
+        {errors.name && (
+          <label className="label">
+            <span className="label-text-alt text-error">{errors.name.message}</span>
+          </label>
+        )}
       </div>
 
       {/* Email Field */}
@@ -133,13 +137,21 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
         </label>
         <input
           type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          className="input input-bordered w-full"
+          {...register('email', { 
+            required: 'El email es requerido',
+            pattern: {
+              value: /\S+@\S+\.\S+/,
+              message: 'El email no es válido'
+            }
+          })}
+          className={`input input-bordered w-full ${errors.email ? 'input-error' : ''}`}
           placeholder="usuario@ejemplo.com"
-          required
         />
+        {errors.email && (
+          <label className="label">
+            <span className="label-text-alt text-error">{errors.email.message}</span>
+          </label>
+        )}
       </div>
 
       {/* Password Fields */}
@@ -152,14 +164,18 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
           </label>
           <input
             type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            className="input input-bordered w-full"
+            {...register('password', { 
+              required: mode === 'create' ? 'La contraseña es requerida' : false,
+              minLength: { value: 8, message: 'La contraseña debe tener al menos 8 caracteres' }
+            })}
+            className={`input input-bordered w-full ${errors.password ? 'input-error' : ''}`}
             placeholder="Mínimo 8 caracteres"
-            minLength={8}
-            required={mode === 'create'}
           />
+          {errors.password && (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.password.message}</span>
+            </label>
+          )}
         </div>
 
         <div className="form-control">
@@ -170,14 +186,23 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
           </label>
           <input
             type="password"
-            name="password_confirmation"
-            value={formData.password_confirmation}
-            onChange={handleInputChange}
-            className="input input-bordered w-full"
+            {...register('password_confirmation', { 
+              required: mode === 'create' ? 'La confirmación de contraseña es requerida' : false,
+              validate: (value) => {
+                if (mode === 'create' || watchedPassword) {
+                  return value === watchedPassword || 'Las contraseñas no coinciden';
+                }
+                return true;
+              }
+            })}
+            className={`input input-bordered w-full ${errors.password_confirmation ? 'input-error' : ''}`}
             placeholder="Repite la contraseña"
-            minLength={8}
-            required={mode === 'create'}
           />
+          {errors.password_confirmation && (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.password_confirmation.message}</span>
+            </label>
+          )}
         </div>
       </div>
 
@@ -187,15 +212,19 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
           <span className="label-text">Rol *</span>
         </label>
         <select
-          name="role"
-          value={formData.role}
-          onChange={handleInputChange}
-          className="select select-bordered w-full"
-          required
+          {...register('role', { 
+            required: 'El rol es requerido' 
+          })}
+          className={`select select-bordered w-full ${errors.role ? 'select-error' : ''}`}
         >
           <option value="vendedor">Vendedor</option>
           <option value="admin">Administrador</option>
         </select>
+        {errors.role && (
+          <label className="label">
+            <span className="label-text-alt text-error">{errors.role.message}</span>
+          </label>
+        )}
       </div>
 
       {/* Active Status Field */}
@@ -204,9 +233,7 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
           <span className="label-text">Usuario activo</span>
           <input
             type="checkbox"
-            name="is_active"
-            checked={formData.is_active}
-            onChange={handleInputChange}
+            {...register('is_active')}
             className="checkbox checkbox-primary"
           />
         </label>
@@ -218,16 +245,16 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
           type="button"
           onClick={onSuccess}
           className="btn btn-outline"
-          disabled={isLoading}
+          disabled={isSubmitting}
         >
           Cancelar
         </button>
         <button
           type="submit"
           className="btn btn-primary"
-          disabled={isLoading || !isFormValid()}
+          disabled={isSubmitting || !isValid}
         >
-          {isLoading ? (
+          {isSubmitting ? (
             <span className="loading loading-spinner loading-sm"></span>
           ) : (
             mode === 'create' ? 'Crear Usuario' : 'Actualizar Usuario'

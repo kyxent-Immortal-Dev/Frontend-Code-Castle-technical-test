@@ -1,4 +1,4 @@
-import React, { useState, useCallback, type ReactNode } from 'react';
+import React, { useState, useCallback, useMemo, type ReactNode } from 'react';
 import type { DataUsers } from '../../interfaces/users/Users.Interfaces';
 import { UserService } from '../../services/api/User.service';
 import { UsersContext, type UsersContextType } from './UsersContextValue';
@@ -8,13 +8,13 @@ import { UsersContext, type UsersContextType } from './UsersContextValue';
 interface UsersProviderProps {
   children: ReactNode;
 }
+const userService = new UserService();
 
 export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
   const [users, setUsers] = useState<DataUsers[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const userService = new UserService();
 
   const getUsers = useCallback(async () => {
     try {
@@ -103,7 +103,7 @@ export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const value: UsersContextType = {
+  const value: UsersContextType = useMemo(() => ({
     users,
     isLoading,
     error,
@@ -112,7 +112,7 @@ export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
     updateUser,
     deleteUser,
     getUserById,
-  };
+  }), [users, isLoading, error, getUsers, createUser, updateUser, deleteUser, getUserById]);
 
   return (
     <UsersContext.Provider value={value}>
