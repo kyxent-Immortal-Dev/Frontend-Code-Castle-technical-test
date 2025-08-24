@@ -1,4 +1,6 @@
 export { CreateUpdatePurchase } from './CreateUpdatePurchase';
 export { DeleteConfirmation } from './DeleteConfirmation';
 export { PurchaseDetails } from './PurchaseDetails';
-export { PurchaseListComponent } from './PurchaseListComponent'; 
+export { PurchaseListComponent } from './PurchaseListComponent';
+export { PurchaseStatusManager } from './PurchaseStatusManager';
+export { PurchaseStats } from './PurchaseStats'; 

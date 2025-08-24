@@ -21,8 +21,18 @@ export const SuppliersProvider: React.FC<SuppliersProviderProps> = ({ children }
             setIsLoading(true);
             setError(null);
             const response = await supplierService.getSuppliers();
-            if (response.data && response.data.data) {
+            console.log('Suppliers API response:', response);
+            if (response.success && response.data && response.data.data) {
+                // Handle paginated response structure
+                console.log('Setting suppliers from response.data.data:', response.data.data);
                 setSuppliers(response.data.data);
+            } else if (response.success && response.data && Array.isArray(response.data)) {
+                // Handle direct array response
+                console.log('Setting suppliers from response.data:', response.data);
+                setSuppliers(response.data);
+            } else {
+                console.log('No valid data structure found in response');
+                setSuppliers([]);
             }
         } catch (error) {
             setError('Error al obtener proveedores');

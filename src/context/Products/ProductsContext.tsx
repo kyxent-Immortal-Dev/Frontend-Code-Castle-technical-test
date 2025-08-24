@@ -19,8 +19,14 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
             setIsLoading(true);
             setError(null);
             const response = await productService.getProducts();
-            if (response.success && response.data) {
+            console.log('Products API response:', response);
+            if (response.success && response.data && Array.isArray(response.data)) {
+                // Handle direct array response (ProductResponse structure)
+                console.log('Setting products from response.data:', response.data);
                 setProducts(response.data);
+            } else {
+                console.log('No valid data structure found in response');
+                setProducts([]);
             }
         } catch (error) {
             setError('Error al obtener productos');

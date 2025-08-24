@@ -69,7 +69,7 @@ export const Header = () => {
               <div className="w-10 rounded-full">
                 <img
                   alt="User Avatar"
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                  src="https://avatars.githubusercontent.com/u/209260967?v=4"
                 />
               </div>
             </button>
@@ -105,7 +105,7 @@ export const Header = () => {
             <div className="avatar placeholder">
               <div className="bg-neutral text-neutral-content rounded-full w-16">
                 <span className="text-xl font-semibold">
-                  {user.name.charAt(0).toUpperCase()}
+                  <img src="https://avatars.githubusercontent.com/u/209260967?v=4" alt="User Avatar" className="w-16 h-16 rounded-full" />
                 </span>
               </div>
             </div>

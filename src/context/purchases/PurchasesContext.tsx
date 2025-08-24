@@ -36,20 +36,7 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
             const response = await purchaseService.createPurchase(purchase as unknown as PurchaseInterface);
             if (response) {
                 // Update purchases silently without triggering loading state
-                const newPurchase: PurchaseInterface = {
-                    ...purchase,
-                    id: Date.now(),
-                    purchase_date: new Date(purchase.purchase_date),
-                    supplier: { id: 0, name: '', email: '', phone: '', address: '', is_active: false },
-                    user: { id: 0, name: '', email: '', email_verified_at: null, created_at: new Date(), updated_at: new Date(), role: '', is_active: false },
-                    details: purchase.details.map(detail => ({
-                        ...detail,
-                        id: Date.now() + Math.random(),
-                        purchase_id: Date.now(),
-                        product: { id: 0, name: '', description: '', unit_price: '', stock: 0, is_active: false }
-                    }))
-                };
-                setPurchases(prev => [...prev, newPurchase]);
+                setPurchases(prev => [...prev, response]);
             }
         } catch (error) {
             setError('Error al crear compra');
@@ -64,7 +51,7 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
             const response = await purchaseService.updatePurchase(purchase.id, purchase);
             if (response) {
                 // Update purchases silently without triggering loading state
-                setPurchases(prev => prev.map(p => p.id === purchase.id ? purchase : p));
+                setPurchases(prev => prev.map(p => p.id === purchase.id ? response : p));
             }
         } catch (error) {
             setError('Error al actualizar compra');
@@ -96,6 +83,78 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
         }
     }, []);
 
+    const completePurchase = useCallback(async (id: number) => {
+        try {
+            setError(null);
+            const response = await purchaseService.completePurchase(id);
+            if (response) {
+                // Update purchases silently without triggering loading state
+                setPurchases(prev => prev.map(p => p.id === id ? response : p));
+            }
+        } catch (error) {
+            setError('Error al completar compra');
+            console.error('Error completing purchase:', error);
+            throw new Error('Error al completar compra');
+        }
+    }, []);
+
+    const cancelPurchase = useCallback(async (id: number) => {
+        try {
+            setError(null);
+            const response = await purchaseService.cancelPurchase(id);
+            if (response) {
+                // Update purchases silently without triggering loading state
+                setPurchases(prev => prev.map(p => p.id === id ? response : p));
+            }
+        } catch (error) {
+            setError('Error al cancelar compra');
+            console.error('Error canceling purchase:', error);
+            throw new Error('Error al cancelar compra');
+        }
+    }, []);
+
+    const getPurchaseStats = useCallback(async () => {
+        try {
+            const response = await purchaseService.getPurchaseStats();
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching purchase stats:', error);
+            throw error;
+        }
+    }, []);
+
+    const getPurchasesByStatus = useCallback(async (status: string) => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const response = await purchaseService.getPurchasesByStatus(status);
+            if (response.success && response.data) {
+                setPurchases(response.data);
+            }
+        } catch (error) {
+            setError('Error al obtener compras por estado');
+            console.error('Error fetching purchases by status:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const getPurchasesBySupplier = useCallback(async (supplierId: number) => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const response = await purchaseService.getPurchasesBySupplier(supplierId);
+            if (response.success && response.data) {
+                setPurchases(response.data);
+            }
+        } catch (error) {
+            setError('Error al obtener compras por proveedor');
+            console.error('Error fetching purchases by supplier:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     const contextValue = useMemo(() => ({
         purchases,
         isLoading,
@@ -105,7 +164,12 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
         updatePurchase,
         deletePurchase,
         getPurchaseById,
-    }), [purchases, isLoading, error, getPurchases, createPurchase, updatePurchase, deletePurchase, getPurchaseById]);
+        completePurchase,
+        cancelPurchase,
+        getPurchaseStats,
+        getPurchasesByStatus,
+        getPurchasesBySupplier,
+    }), [purchases, isLoading, error, getPurchases, createPurchase, updatePurchase, deletePurchase, getPurchaseById, completePurchase, cancelPurchase, getPurchaseStats, getPurchasesByStatus, getPurchasesBySupplier]);
 
     return (
         <PurchasesContext.Provider value={contextValue}>
