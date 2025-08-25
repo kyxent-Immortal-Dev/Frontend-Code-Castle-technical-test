@@ -23,17 +23,17 @@ export const SupplierDetails: React.FC<SupplierDetailsProps> = ({
                 <h4 className="font-semibold text-base-content mb-2">Información General</h4>
                 <div className="card bg-base-200 p-4">
                   <div className="space-y-3">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between ">
                       <span className="font-medium">Nombre:</span>
-                      <span>{supplier.name}</span>
+                      <span className="break-words">{supplier.name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">Email:</span>
-                      <span className="font-mono">{supplier.email}</span>
+                      <span className="font-mono break-words">{supplier.email}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">Teléfono:</span>
-                      <span className="font-mono">{supplier.phone}</span>
+                      <span className="font-mono break-words">{supplier.phone}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">Estado:</span>

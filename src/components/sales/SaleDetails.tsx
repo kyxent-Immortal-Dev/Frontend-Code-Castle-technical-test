@@ -50,7 +50,7 @@ export const SaleDetails = ({ sale }: SaleDetailsProps) => {
         
         <div className="stat bg-base-100 rounded-lg">
           <div className="stat-title">Vendedor</div>
-          <div className="stat-value text-lg">{sale.user.name}</div>
+          <div className="stat-value text-lg break-words">{sale.user.name.split(' ').slice(0, 2).join(' ')}</div>
           <div className="stat-desc capitalize">{sale.user.role}</div>
         </div>
 

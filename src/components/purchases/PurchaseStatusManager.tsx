@@ -97,7 +97,7 @@ export const PurchaseStatusManager: React.FC<PurchaseStatusManagerProps> = ({ pu
 
         {/* Action Buttons - Only show for pending purchases */}
         {canComplete && (
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
             <button
               onClick={() => setShowCompleteModal(true)}
               className="btn btn-success"

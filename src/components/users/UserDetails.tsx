@@ -47,9 +47,9 @@ export const UserDetails = ({ user }: UserDetailsProps) => {
             </span>
           </div>
         </div>
-        <div>
-          <h4 className="text-2xl font-bold">{user.name}</h4>
-          <p className="text-lg opacity-70">{user.email}</p>
+        <div className="grid grid-cols-1 gap-2">
+          <h4 className="text-2xl font-bold  break-words">{user.name}</h4>
+          <p className="text-lg opacity-70 break-words">{user.email}</p>
         </div>
       </div>
 

@@ -67,7 +67,7 @@ export const PurchaseDetails: React.FC<PurchaseDetailsProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         {canEdit && (
           <button
             onClick={onEdit}
