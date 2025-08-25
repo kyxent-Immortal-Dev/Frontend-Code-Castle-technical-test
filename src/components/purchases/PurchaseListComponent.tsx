@@ -5,6 +5,7 @@ import { CreateUpdatePurchase } from './CreateUpdatePurchase';
 import { PurchaseDetails } from './PurchaseDetails';
 import { DeleteConfirmation } from './DeleteConfirmation';
 import { PurchaseStatsComponent } from './PurchaseStats';
+import { PurchasesBySupplierReportForm } from './PurchasesBySupplierReportForm';
 import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import { ModalComponent } from '../atoms/ModalComponent';
 
@@ -18,6 +19,7 @@ export const PurchaseListComponent: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [supplierFilter, setSupplierFilter] = useState(0); // New state for supplier filter
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   // Helper function to get permissions for a purchase
   const getPurchasePermissions = (purchase: PurchaseInterface) => {
@@ -209,6 +211,15 @@ export const PurchaseListComponent: React.FC = () => {
             ))}
           </select>
         </div>
+        <button
+          onClick={() => setIsReportModalOpen(true)}
+          className="btn btn-primary btn-lg"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Generar Reporte 
+        </button>
 
         <button
           onClick={handleCreate}
@@ -395,6 +406,19 @@ export const PurchaseListComponent: React.FC = () => {
           onDelete={() => setModalType('delete')}
           onStatusChange={handleStatusChange}
           onClose={() => setModalType(null)}
+        />
+      </ModalComponent>
+
+      {/* Purchases Report Modal */}
+      <ModalComponent
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        title="Generar Reporte de Compras por Proveedor"
+        size="lg"
+        showCloseButton={true}
+      >
+        <PurchasesBySupplierReportForm
+          onClose={() => setIsReportModalOpen(false)}
         />
       </ModalComponent>
     </div>

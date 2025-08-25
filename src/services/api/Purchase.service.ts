@@ -134,4 +134,17 @@ export class PurchaseService {
             throw error;
         }
     }
+
+    // Generate purchases report by supplier
+    async generatePurchasesBySupplierReport(supplierId: number): Promise<Blob> {
+        try {
+            const response = await this.httpClient.get(`/purchases/supplier/${supplierId}/report`, {
+                responseType: 'blob'
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error generating purchases report by supplier:', error);
+            throw error;
+        }
+    }
 }
