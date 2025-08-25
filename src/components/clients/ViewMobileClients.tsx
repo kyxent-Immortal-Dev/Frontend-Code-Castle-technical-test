@@ -8,6 +8,8 @@ interface ViewMobileClientsProps {
   onToggleStatus: (id: number) => void;
   onDeleteClient: (client: Client) => void;
   formatDate: (dateString: string) => string;
+  canDeleteClient: (client: Client) => boolean;
+  getDeleteButtonTooltip: (client: Client) => string;
 }
 
 export const ViewMobileClients: React.FC<ViewMobileClientsProps> = ({
@@ -17,6 +19,8 @@ export const ViewMobileClients: React.FC<ViewMobileClientsProps> = ({
   onToggleStatus,
   onDeleteClient,
   formatDate,
+  canDeleteClient,
+  getDeleteButtonTooltip,
 }) => {
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -77,6 +81,20 @@ export const ViewMobileClients: React.FC<ViewMobileClientsProps> = ({
               </div>
             </div>
 
+            {/* Ventas asociadas */}
+            {client.sales && client.sales.length > 0 && (
+              <div className="mb-4 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <span className="text-sm text-warning font-medium">
+                    {client.sales.length} venta(s) asociada(s) - No se puede eliminar
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Botones de acción */}
             <div className="flex flex-wrap gap-2">
               <button
@@ -121,7 +139,8 @@ export const ViewMobileClients: React.FC<ViewMobileClientsProps> = ({
               <button
                 onClick={() => onDeleteClient(client)}
                 className="btn btn-sm btn-outline btn-error flex-1 min-w-0"
-                title="Eliminar"
+                title={getDeleteButtonTooltip(client)}
+                disabled={!canDeleteClient(client)}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
