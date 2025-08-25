@@ -47,21 +47,31 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
 
   const watchedDetails = watch('details');
 
+  // Helper function to calculate total (similar to CreateUpdateSales)
+  const calculateTotal = () => {
+    return watchedDetails.reduce((total, detail) => {
+      const quantity = parseInt(detail.quantity?.toString() || '0');
+      const price = parseFloat(detail.purchase_price || '0');
+      return total + (quantity * price);
+    }, 0);
+  };
+
+  // Watch for changes to force re-renders
+  watch('total_amount');
+
   // Load suppliers and products when component mounts
   useEffect(() => {
     getSuppliers();
     getProducts();
   }, [getSuppliers, getProducts]);
 
-  // Debug logging
+  // Update total when details change
   useEffect(() => {
-    console.log('Suppliers loaded:', suppliers);
-    console.log('Products loaded:', products);
-    console.log('Suppliers type:', typeof suppliers);
-    console.log('Products type:', typeof products);
-    console.log('Suppliers isArray:', Array.isArray(suppliers));
-    console.log('Products isArray:', Array.isArray(products));
-  }, [suppliers, products]);
+    const total = calculateTotal().toFixed(2);
+    setValue('total_amount', total);
+  }, [watchedDetails, setValue]);
+
+
 
   // Ensure suppliers and products are arrays
   const safeSuppliers = Array.isArray(suppliers) ? suppliers : [];
@@ -100,26 +110,10 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
     }
   }, [purchase, reset]);
 
-  // Auto-calculate subtotals and total when details change
-  useEffect(() => {
-    let total = 0;
-    
-    watchedDetails.forEach((detail, index) => {
-      const quantity = parseInt(detail.quantity?.toString() || '0');
-      const price = parseFloat(detail.purchase_price || '0');
-      
-      if (!isNaN(quantity) && !isNaN(price) && quantity > 0 && price > 0) {
-        const subtotal = (quantity * price).toFixed(2);
-        setValue(`details.${index}.subtotal`, subtotal);
-        total += parseFloat(subtotal);
-      } else {
-        setValue(`details.${index}.subtotal`, '0.00');
-      }
-    });
-    
-    // Update total amount
-    setValue('total_amount', total.toFixed(2));
-  }, [watchedDetails, setValue]);
+  // Helper function to calculate subtotal for a specific detail
+  const calculateSubtotal = (quantity: number, price: number) => {
+    return quantity * price;
+  };
 
   // Show loading state while data is being fetched
   if (isLoadingSuppliers || isLoadingProducts) {
@@ -186,13 +180,25 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
 
   const onSubmit = async (data: PurchaseFormData) => {
     try {
+      // Validate no duplicate products
+      const productIds = data.details.map(detail => detail.product_id).filter(id => id > 0);
+      const uniqueProductIds = [...new Set(productIds)];
+      
+      if (productIds.length !== uniqueProductIds.length) {
+        alert('No puede haber productos duplicados en la misma compra. Por favor, elimina los productos duplicados.');
+        return;
+      }
+
+      // Calculate total dynamically
+      const calculatedTotal = calculateTotal().toFixed(2);
+      
       if (isEditing && purchase) {
         await updatePurchase({
           ...purchase,
           supplier_id: data.supplier_id,
           user_id: data.user_id,
           purchase_date: new Date(data.purchase_date),
-          total_amount: data.total_amount,
+          total_amount: calculatedTotal,
           status: data.status,
           notes: data.notes,
           details: data.details.map(detail => ({
@@ -203,7 +209,11 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
           }))
         });
       } else {
-        await createPurchase(data);
+        await createPurchase({
+          ...data,
+          total_amount: calculatedTotal
+        });
+        reset();
       }
       onClose();
     } catch (error) {
@@ -363,7 +373,21 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                   <select
                     {...register(`details.${index}.product_id`, { 
                       required: 'El producto es requerido',
-                      min: { value: 1, message: 'Selecciona un producto' }
+                      min: { value: 1, message: 'Selecciona un producto' },
+                      validate: (value) => {
+                        if (value === 0) return true; // Skip validation for placeholder
+                        
+                        // Check for duplicates
+                        const currentProductIds = watchedDetails
+                          .map((detail, idx) => idx !== index ? detail.product_id : null)
+                          .filter(id => id !== null && id > 0);
+                        
+                        if (currentProductIds.includes(value)) {
+                          return 'Producto duplicado';
+                        }
+                        
+                        return true;
+                      }
                     })}
                     className={`select select-bordered w-full ${errors.details?.[index]?.product_id ? 'select-error' : ''}`}
                   >
@@ -383,6 +407,11 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                       </optgroup>
                     )}
                   </select>
+                  {errors.details?.[index]?.product_id && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">{errors.details[index]?.product_id?.message}</span>
+                    </label>
+                  )}
                   {activeProducts.length === 0 && (
                     <label className="label">
                       <span className="label-text-alt text-warning">No hay productos activos disponibles</span>
@@ -444,7 +473,10 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                   <input
                     type="number"
                     step="0.01"
-                    {...register(`details.${index}.subtotal`)}
+                    value={calculateSubtotal(
+                      parseInt(watchedDetails[index]?.quantity?.toString() || '0'),
+                      parseFloat(watchedDetails[index]?.purchase_price || '0')
+                    ).toFixed(2)}
                     className="input input-bordered w-full bg-base-100"
                     readOnly
                   />
@@ -475,7 +507,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
           <input
             type="number"
             step="0.01"
-            {...register('total_amount')}
+            value={watch('total_amount') || calculateTotal().toFixed(2)}
             className="input input-bordered w-full bg-base-100 text-lg font-bold"
             readOnly
           />

@@ -39,12 +39,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
     const createProduct = useCallback(async (product: Omit<ProductInterface, 'id' | 'purchase_details'>) => {
         try {
             setError(null);
-            const response = await productService.createProduct(product as ProductInterface);
-            if (response.success) {
-                // Update products silently without triggering loading state
-                const newProduct = { ...product, id: Date.now(), purchase_details: [] } as ProductInterface;
-                setProducts(prev => [...prev, newProduct]);
-            }
+            await productService.createProduct(product as ProductInterface);
+            getProducts();
         } catch (error) {
             setError('Error al crear producto');
             console.error('Error creating product:', error);
@@ -55,11 +51,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
     const updateProduct = useCallback(async (product: ProductInterface) => {
         try {
             setError(null);
-            const response = await productService.updateProduct(product);
-            if (response.success) {
-                // Update products silently without triggering loading state
-                setProducts(prev => prev.map(p => p.id === product.id ? product : p));
-            }
+            await productService.updateProduct(product);
+            getProducts();
         } catch (error) {
             setError('Error al actualizar producto');
             console.error('Error updating product:', error);
@@ -71,8 +64,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
         try {
             setError(null);
             await productService.deleteProduct(id);
-            // Update products silently without triggering loading state
-            setProducts(prev => prev.filter(p => p.id !== id));
+            getProducts();
         } catch (error) {
             setError('Error al eliminar producto');
             console.error('Error deleting product:', error);

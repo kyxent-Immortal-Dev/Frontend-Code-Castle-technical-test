@@ -33,11 +33,8 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
     const createPurchase = useCallback(async (purchase: CreatePurchaseData) => {
         try {
             setError(null);
-            const response = await purchaseService.createPurchase(purchase as unknown as PurchaseInterface);
-            if (response) {
-                // Update purchases silently without triggering loading state
-                setPurchases(prev => [...prev, response]);
-            }
+            await purchaseService.createPurchase(purchase as unknown as PurchaseInterface);
+            getPurchases();
         } catch (error) {
             setError('Error al crear compra');
             console.error('Error creating purchase:', error);
@@ -48,11 +45,8 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
     const updatePurchase = useCallback(async (purchase: PurchaseInterface) => {
         try {
             setError(null);
-            const response = await purchaseService.updatePurchase(purchase.id, purchase);
-            if (response) {
-                // Update purchases silently without triggering loading state
-                setPurchases(prev => prev.map(p => p.id === purchase.id ? response : p));
-            }
+            await purchaseService.updatePurchase(purchase.id, purchase);
+            getPurchases();
         } catch (error) {
             setError('Error al actualizar compra');
             console.error('Error updating purchase:', error);
@@ -64,8 +58,7 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
         try {
             setError(null);
             await purchaseService.deletePurchase(id);
-            // Update purchases silently without triggering loading state
-            setPurchases(prev => prev.filter(p => p.id !== id));
+            getPurchases();
         } catch (error) {
             setError('Error al eliminar compra');
             console.error('Error deleting purchase:', error);
@@ -86,11 +79,8 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
     const completePurchase = useCallback(async (id: number) => {
         try {
             setError(null);
-            const response = await purchaseService.completePurchase(id);
-            if (response) {
-                // Update purchases silently without triggering loading state
-                setPurchases(prev => prev.map(p => p.id === id ? response : p));
-            }
+            await purchaseService.completePurchase(id);
+            getPurchases();
         } catch (error) {
             setError('Error al completar compra');
             console.error('Error completing purchase:', error);
@@ -101,11 +91,8 @@ export const PurchasesProvider: React.FC<PurchasesProviderProps> = ({ children }
     const cancelPurchase = useCallback(async (id: number) => {
         try {
             setError(null);
-            const response = await purchaseService.cancelPurchase(id);
-            if (response) {
-                // Update purchases silently without triggering loading state
-                setPurchases(prev => prev.map(p => p.id === id ? response : p));
-            }
+            await purchaseService.cancelPurchase(id);
+            getPurchases();
         } catch (error) {
             setError('Error al cancelar compra');
             console.error('Error canceling purchase:', error);

@@ -83,6 +83,7 @@ export const CreateUpdateUser = ({ mode, user, onSuccess }: CreateUpdateUserProp
           is_active: data.is_active
         };
         await createUser(createData as unknown as DataUsers);
+        reset();
       } else if (mode === 'edit' && user) {
         // For edit, we need to send the complete user data
         const updateData = { 
