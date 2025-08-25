@@ -3,6 +3,7 @@ import type { SupplierInterface } from '../../interfaces/inventary/Supliers.inte
 import { CreateUpdateSupplier } from './CreateUpdateSupplier';
 import { DeleteConfirmation } from './DeleteConfirmation';
 import { SupplierDetails } from './SupplierDetails';
+import { ViewMobileSuppliers } from './ViewMobileSuppliers';
 import { ModalComponent } from '../atoms/ModalComponent';
 import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import { Toast } from '../atoms/Toast';
@@ -78,71 +79,83 @@ export const SuppliersListComponent: React.FC = () => {
 
   if (error) {
     return (
-      <div className="alert alert-error">
+      <div className="alert alert-error mx-4 my-6">
         <span>Error: {error}</span>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-base-content mb-2">Gestión de Proveedores</h1>
-        <p className="text-base-content/70">Administra los proveedores del sistema y su información de contacto</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-base-content mb-2">Gestión de Proveedores</h1>
+        <p className="text-sm sm:text-base text-base-content/70">Administra los proveedores del sistema y su información de contacto</p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-primary">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="stat-title text-xs sm:text-sm">Total de Proveedores</div>
+              <div className="stat-value text-2xl sm:text-3xl text-primary">{suppliers.length}</div>
+              <div className="stat-desc text-xs">Registrados en el sistema</div>
+            </div>
+            <div className="stat-figure text-primary">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
           </div>
-          <div className="stat-title">Total de Proveedores</div>
-          <div className="stat-value text-primary">{suppliers.length}</div>
-          <div className="stat-desc">Registrados en el sistema</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-success">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="stat-title text-xs sm:text-sm">Proveedores Activos</div>
+              <div className="stat-value text-2xl sm:text-3xl text-success">{suppliers.filter(s => s.is_active).length}</div>
+              <div className="stat-desc text-xs">Cuentas activas actualmente</div>
+            </div>
+            <div className="stat-figure text-success">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
           </div>
-          <div className="stat-title">Proveedores Activos</div>
-          <div className="stat-value text-success">{suppliers.filter(s => s.is_active).length}</div>
-          <div className="stat-desc">Cuentas activas actualmente</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-info">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-4 sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="stat-title text-xs sm:text-sm">Total Compras</div>
+              <div className="stat-value text-2xl sm:text-3xl text-info">
+                {suppliers.reduce((total, s) => total + s.purchases.length, 0)}
+              </div>
+              <div className="stat-desc text-xs">Transacciones realizadas</div>
+            </div>
+            <div className="stat-figure text-info">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
           </div>
-          <div className="stat-title">Total Compras</div>
-          <div className="stat-value text-info">
-            {suppliers.reduce((total, s) => total + s.purchases.length, 0)}
-          </div>
-          <div className="stat-desc">Transacciones realizadas</div>
         </div>
       </div>
 
       {/* Search and Action Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="form-control w-full max-w-md">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
+        <div className="form-control w-full sm:max-w-md">
           <div className="input-group">
             <input
               type="text"
               placeholder="Buscar proveedores..."
-              className="input input-bordered w-full"
+              className="input input-bordered flex-1"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button className="btn btn-square">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
@@ -151,17 +164,18 @@ export const SuppliersListComponent: React.FC = () => {
         
         <button
           onClick={openCreateModal}
-          className="btn btn-primary btn-lg"
+          className="btn btn-primary "
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          + Nuevo Proveedor
+          <span className="hidden sm:inline">+ Nuevo Proveedor</span>
+          <span className="sm:hidden">+ Agregar</span>
         </button>
       </div>
 
-      {/* Suppliers Table */}
-      <div className="bg-base-100 shadow-lg rounded-lg overflow-hidden">
+      {/* Desktop Table View (hidden on mobile) */}
+      <div className="hidden lg:block bg-base-100 shadow-lg rounded-lg overflow-hidden mb-6">
         <div className="overflow-x-auto">
           <table className="table table-zebra w-full">
             <thead className="bg-primary text-primary-content">
@@ -250,34 +264,47 @@ export const SuppliersListComponent: React.FC = () => {
             </tbody>
           </table>
         </div>
-
-        {filteredSuppliers.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <div className="text-base-content/50 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2">
-              {searchTerm ? 'No se encontraron proveedores' : 'No hay proveedores registrados'}
-            </h3>
-            <p className="text-base-content/70 mb-4">
-              {searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando el primer proveedor al sistema'}
-            </p>
-            {!searchTerm && (
-              <button
-                onClick={openCreateModal}
-                className="btn btn-primary btn-lg gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Agregar Proveedor
-              </button>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Mobile and Tablet Card View */}
+      <div className="lg:hidden">
+        {filteredSuppliers.length > 0 ? (
+          <ViewMobileSuppliers
+            suppliers={filteredSuppliers}
+            onView={openViewModal}
+            onEdit={openEditModal}
+            onDelete={openDeleteModal}
+          />
+        ) : null}
+      </div>
+
+      {/* Empty State */}
+      {filteredSuppliers.length === 0 && !isLoading && (
+        <div className="text-center py-12">
+          <div className="text-base-content/50 mb-4">
+            <svg className="w-12 h-12 sm:w-16 sm:h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">
+            {searchTerm ? 'No se encontraron proveedores' : 'No hay proveedores registrados'}
+          </h3>
+          <p className="text-sm sm:text-base text-base-content/70 mb-4 px-4">
+            {searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando el primer proveedor al sistema'}
+          </p>
+          {!searchTerm && (
+            <button
+              onClick={openCreateModal}
+              className="btn btn-primary btn-lg gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar Proveedor
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Modals */}
       <ModalComponent
@@ -325,13 +352,13 @@ export const SuppliersListComponent: React.FC = () => {
         showCloseButton={true}
       >
         {selectedSupplier && (
-                  <SupplierDetails
-          onClose={() => {
-            setIsViewModalOpen(false);
-            setSelectedSupplier(null);
-          }}
-          supplier={selectedSupplier}
-        />
+          <SupplierDetails
+            onClose={() => {
+              setIsViewModalOpen(false);
+              setSelectedSupplier(null);
+            }}
+            supplier={selectedSupplier}
+          />
         )}
       </ModalComponent>
 
@@ -346,14 +373,14 @@ export const SuppliersListComponent: React.FC = () => {
         showCloseButton={true}
       >
         {selectedSupplier && (
-                  <DeleteConfirmation
-          onClose={() => {
-            setIsDeleteModalOpen(false);
-            setSelectedSupplier(null);
-          }}
-          onConfirm={() => handleDeleteSupplier(selectedSupplier.id)}
-          supplierName={selectedSupplier.name}
-        />
+          <DeleteConfirmation
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setSelectedSupplier(null);
+            }}
+            onConfirm={() => handleDeleteSupplier(selectedSupplier.id)}
+            supplierName={selectedSupplier.name}
+          />
         )}
       </ModalComponent>
 
