@@ -3,6 +3,7 @@ import { useProductsContext } from '../../hooks/useProductsContext';
 import { CreateUpdateProduct } from './CreateUpdateProduct';
 import { DeleteConfirmation } from './DeleteConfirmation';
 import { ProductDetails } from './ProductDetails';
+import { ViewMobileProducts } from './ViewMobileProducts';
 import { ModalComponent } from '../atoms/ModalComponent';
 import type { ProductInterface } from '../../interfaces/inventary/Product.interface';
 import { LoadingSpinner } from '../atoms';
@@ -121,65 +122,65 @@ export const ProductListComponent: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-base-content mb-2">Gestión de Productos</h1>
-        <p className="text-base-content/70">Administra el inventario de productos del sistema</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-base-content mb-2">Gestión de Productos</h1>
+        <p className="text-base-content/70 text-sm sm:text-base">Administra el inventario de productos del sistema</p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-primary">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6">
+          <div className="stat-figure text-primary hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <div className="stat-title">Total de Productos</div>
-          <div className="stat-value text-primary">{products.length}</div>
-          <div className="stat-desc">En el inventario</div>
+          <div className="stat-title text-xs sm:text-sm">Total de Productos</div>
+          <div className="stat-value text-primary text-lg sm:text-2xl">{products.length}</div>
+          <div className="stat-desc text-xs">En el inventario</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-success">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6">
+          <div className="stat-figure text-success hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div className="stat-title">Productos Activos</div>
-          <div className="stat-value text-success">{products.filter(p => p.is_active).length}</div>
-          <div className="stat-desc">Disponibles para venta</div>
+          <div className="stat-title text-xs sm:text-sm">Productos Activos</div>
+          <div className="stat-value text-success text-lg sm:text-2xl">{products.filter(p => p.is_active).length}</div>
+          <div className="stat-desc text-xs">Disponibles para venta</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-warning">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6">
+          <div className="stat-figure text-warning hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <div className="stat-title">Stock Bajo</div>
-          <div className="stat-value text-warning">{products.filter(p => p.stock > 0 && p.stock <= 10).length}</div>
-          <div className="stat-desc">Necesitan reposición</div>
+          <div className="stat-title text-xs sm:text-sm">Stock Bajo</div>
+          <div className="stat-value text-warning text-lg sm:text-2xl">{products.filter(p => p.stock > 0 && p.stock <= 10).length}</div>
+          <div className="stat-desc text-xs">Necesitan reposición</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-error">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6">
+          <div className="stat-figure text-error hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636" />
             </svg>
           </div>
-          <div className="stat-title">Sin Stock</div>
-          <div className="stat-value text-error">{products.filter(p => p.stock === 0).length}</div>
-          <div className="stat-desc">Agotados</div>
+          <div className="stat-title text-xs sm:text-sm">Sin Stock</div>
+          <div className="stat-value text-error text-lg sm:text-2xl">{products.filter(p => p.stock === 0).length}</div>
+          <div className="stat-desc text-xs">Agotados</div>
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-4 mb-6 lg:flex-row lg:justify-between lg:items-center">
         {/* Filters */}
-        <div className="flex gap-4">
-          <div className="form-control w-64">
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+          <div className="form-control w-full sm:w-64">
             <input
               type="text"
               placeholder="Buscar productos..."
@@ -188,62 +189,69 @@ export const ProductListComponent: React.FC = () => {
               className="input input-bordered w-full"
             />
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-            className="select select-bordered"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="active">Solo activos</option>
-            <option value="inactive">Solo inactivos</option>
-          </select>
-          <select
-            value={stockFilter}
-            onChange={(e) => setStockFilter(e.target.value as 'all' | 'in-stock' | 'low-stock' | 'out-of-stock')}
-            className="select select-bordered"
-          >
-            <option value="all">Todo el stock</option>
-            <option value="in-stock">En stock</option>
-            <option value="low-stock">Stock bajo</option>
-            <option value="out-of-stock">Sin stock</option>
-          </select>
+          <div className="flex gap-2 sm:gap-4">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+              className="select select-bordered flex-1 sm:flex-none"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="active">Solo activos</option>
+              <option value="inactive">Solo inactivos</option>
+            </select>
+            <select
+              value={stockFilter}
+              onChange={(e) => setStockFilter(e.target.value as 'all' | 'in-stock' | 'low-stock' | 'out-of-stock')}
+              className="select select-bordered flex-1 sm:flex-none"
+            >
+              <option value="all">Todo el stock</option>
+              <option value="in-stock">En stock</option>
+              <option value="low-stock">Stock bajo</option>
+              <option value="out-of-stock">Sin stock</option>
+            </select>
+          </div>
         </div>
 
-        <div className="flex gap-3">
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
           <button
             onClick={handleGenerateReport}
             disabled={isGeneratingReport}
-            className="btn btn-secondary btn-lg"
+            className="btn btn-secondary btn-sm sm:btn-md lg:btn-lg"
           >
             {isGeneratingReport ? (
               <>
                 <span className="loading loading-spinner loading-sm"></span>
-                Generando...
+                <span className="hidden sm:inline">Generando...</span>
+                <span className="sm:hidden">...</span>
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Generar Reporte
+                <span className="hidden sm:inline">Generar Reporte</span>
+                <span className="sm:hidden">Reporte</span>
               </>
             )}
           </button>
           <button
             onClick={handleCreate}
-            className="btn btn-primary btn-lg"
+            className="btn btn-primary btn-sm sm:btn-md lg:btn-lg"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
             </svg>
-            + Nuevo Producto
+            <span className="hidden sm:inline">+ Nuevo Producto</span>
+            <span className="sm:hidden">+ Producto</span>
           </button>
         </div>
       </div>
 
-      {/* Products Table */}
+      {/* Products Display - Desktop Table / Mobile Cards */}
       <div className="bg-base-100 shadow-lg rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="table table-zebra w-full">
             <thead className="bg-primary text-primary-content">
               <tr>
@@ -333,23 +341,35 @@ export const ProductListComponent: React.FC = () => {
           </table>
         </div>
 
+        {/* Mobile Cards View */}
+        <div className="block lg:hidden p-4">
+          <ViewMobileProducts
+            products={filteredProducts}
+            onViewDetails={handleViewDetails}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        </div>
+
+        {/* Empty State */}
         {filteredProducts.length === 0 && !isLoading && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 px-4">
             <div className="text-base-content/50 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 sm:w-16 sm:h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
             <h3 className="text-lg font-semibold mb-2">No se encontraron productos</h3>
-            <p className="text-base-content/70 mb-4">Intenta ajustar los filtros o crear un nuevo producto</p>
+            <p className="text-base-content/70 mb-4 text-sm sm:text-base">Intenta ajustar los filtros o crear un nuevo producto</p>
             <button
               onClick={handleCreate}
-              className="btn btn-primary btn-lg gap-2"
+              className="btn btn-primary btn-sm sm:btn-lg gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
               </svg>
-              Agregar Producto
+              <span className="hidden sm:inline">Agregar Producto</span>
+              <span className="sm:hidden">+ Producto</span>
             </button>
           </div>
         )}
@@ -418,4 +438,4 @@ export const ProductListComponent: React.FC = () => {
       </ModalComponent>
     </div>
   );
-}; 
+};
