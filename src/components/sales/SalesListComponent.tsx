@@ -4,6 +4,7 @@ import type { Sale } from '../../interfaces/sales/Sales.interfaces';
 import { CreateUpdateSales } from './CreateUpdateSales';
 import { SaleDetails } from './SaleDetails';
 import { DeleteConfirmation } from './DeleteConfirmation';
+import { SalesReportForm } from './SalesReportForm';
 import { ModalComponent } from '../atoms/ModalComponent';
 import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import { Toast } from '../atoms/Toast';
@@ -22,6 +23,7 @@ export const SalesListComponent: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
     message: '',
@@ -152,15 +154,26 @@ export const SalesListComponent: React.FC = () => {
       {/* Action Bar */}
       <div className="flex justify-between items-center mb-6">
         <div></div>
-        <button
-          onClick={openCreateModal}
-          className="btn btn-primary btn-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-          </svg>
-          + Nueva Venta
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsReportModalOpen(true)}
+            className="btn btn-secondary btn-lg"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Generar Reporte
+          </button>
+          <button
+            onClick={openCreateModal}
+            className="btn btn-primary btn-lg"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            + Nueva Venta
+          </button>
+        </div>
       </div>
 
       {/* Sales Table */}
@@ -339,6 +352,18 @@ export const SalesListComponent: React.FC = () => {
             }}
           />
         )}
+      </ModalComponent>
+
+      <ModalComponent
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        title="Generar Reporte de Ventas"
+        size="lg"
+        showCloseButton={true}
+      >
+        <SalesReportForm
+          onClose={() => setIsReportModalOpen(false)}
+        />
       </ModalComponent>
 
       {/* Toast Notification */}

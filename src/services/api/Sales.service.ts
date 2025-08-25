@@ -78,4 +78,13 @@ export class SalesService {
         const response = await this.httpClient.get(`/sales/monthly?year=${year}`);
         return response.data;
     }
+
+    // Generate sales report by date range
+    public async generateSalesReport(startDate: string, endDate: string): Promise<Blob> {
+        const response = await this.httpClient.get('/sales/report', {
+            params: { start_date: startDate, end_date: endDate },
+            responseType: 'blob'
+        });
+        return response.data;
+    }
 }
