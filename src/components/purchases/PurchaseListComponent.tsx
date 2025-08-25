@@ -82,6 +82,11 @@ export const PurchaseListComponent: React.FC = () => {
       try {
         // Refresh the purchases list to show updated status
         await getPurchases();
+        
+        // Close the details modal since the purchase status has changed
+        // and the details are no longer relevant
+        setModalType(null);
+        setSelectedPurchase(null);
       } catch (error) {
         console.error('Error refreshing purchases:', error);
       }

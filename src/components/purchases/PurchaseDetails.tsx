@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import type { PurchaseInterface } from '../../interfaces/inventary/Purchases.interface';
 import { PurchaseStatusManager } from './PurchaseStatusManager';
+import { usePurchasesContext } from '../../hooks';
 
 interface PurchaseDetailsProps {
   purchase: PurchaseInterface | null;
@@ -17,25 +18,14 @@ export const PurchaseDetails: React.FC<PurchaseDetailsProps> = ({
   onStatusChange,
   onClose 
 }) => {
-  // Track the previous status to detect changes
-  const [previousStatus, setPreviousStatus] = useState<string | null>(null);
+  const { isLoading } = usePurchasesContext();
 
-  // Auto-close modal when status changes from pending to completed/cancelled
+  // Auto-close modal when loading is true (status change in progress)
   useEffect(() => {
-    if (purchase && previousStatus === 'pending' && purchase.status !== 'pending' && onClose) {
-      // Status changed from pending to completed/cancelled, close modal after delay
-      const timer = setTimeout(() => {
-        onClose();
-      }, 2000); // Give user time to see the success message
-      
-      return () => clearTimeout(timer);
+    if (isLoading && onClose) {
+      onClose();
     }
-    
-    // Update previous status for next comparison
-    if (purchase) {
-      setPreviousStatus(purchase.status);
-    }
-  }, [purchase?.status, previousStatus, onClose]);
+  }, [isLoading, onClose]);
 
   if (!purchase) {
     return (
@@ -50,10 +40,9 @@ export const PurchaseDetails: React.FC<PurchaseDetailsProps> = ({
   const canEdit = isPending;
   const canDelete = isPending;
 
-  // Enhanced status change handler that includes modal closing
+  // Simple status change handler
   const handleStatusChange = () => {
     onStatusChange();
-    // The modal will be closed automatically by the useEffect when status changes
   };
 
   return (
@@ -97,14 +86,14 @@ export const PurchaseDetails: React.FC<PurchaseDetailsProps> = ({
         )}
       </div>
 
-      {/* Info about auto-close */}
+      {/* Info about auto-close - Only show for pending purchases */}
       {isPending && (
         <div className="alert alert-info">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span>
-            <strong>Nota:</strong> Al cambiar el estado de la compra, este modal se cerrará automáticamente en 2 segundos.
+            <strong>Nota:</strong> Al cambiar el estado de la compra, ya no se podrá editar ni eliminar.
           </span>
         </div>
       )}

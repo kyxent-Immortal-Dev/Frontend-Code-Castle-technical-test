@@ -22,17 +22,19 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isSubmitting },
     reset,
     control,
     watch,
-    setValue
+    setValue,
+    setError,
+    clearErrors
   } = useForm<PurchaseFormData>({
     mode: 'onChange',
     defaultValues: {
       supplier_id: 0,
-      user_id: 1, // Default user ID
-      purchase_date: new Date().toISOString().split('T')[0], // Today's date
+      user_id: 1,
+      purchase_date: new Date().toISOString().split('T')[0],
       total_amount: '0.00',
       status: 'pending',
       notes: '',
@@ -47,7 +49,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
 
   const watchedDetails = watch('details');
 
-  // Helper function to calculate total (similar to CreateUpdateSales)
+  // Helper function to calculate total
   const calculateTotal = () => {
     return watchedDetails.reduce((total, detail) => {
       const quantity = parseInt(detail.quantity?.toString() || '0');
@@ -56,7 +58,44 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
     }, 0);
   };
 
-  // Watch for changes to force re-renders
+  // Helper function to validate duplicate products
+  const validateDuplicateProducts = () => {
+    const productIds = watchedDetails
+      .map((detail, index) => ({ id: detail.product_id, index }))
+      .filter(item => item.id > 0);
+    
+    const duplicates = new Set();
+    const seen = new Set();
+    
+    productIds.forEach(item => {
+      if (seen.has(item.id)) {
+        duplicates.add(item.index);
+        // Also mark the first occurrence as duplicate
+        const firstIndex = productIds.find(p => p.id === item.id)?.index;
+        if (firstIndex !== undefined) {
+          duplicates.add(firstIndex);
+        }
+      } else {
+        seen.add(item.id);
+      }
+    });
+
+    // Clear all errors first
+    clearErrors();
+
+    // Set errors for duplicates
+    duplicates.forEach(index => {
+      const fieldPath = `details.${index}.product_id` as `details.${number}.product_id`;
+      setError(fieldPath, {
+        type: 'manual',
+        message: 'Producto duplicado.'
+      });
+    });
+
+    return duplicates.size === 0;
+  };
+
+  // Watch for changes to force re-renders and validations
   watch('total_amount');
 
   // Load suppliers and products when component mounts
@@ -71,7 +110,12 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
     setValue('total_amount', total);
   }, [watchedDetails, setValue]);
 
-
+  // Validate duplicates when details change
+  useEffect(() => {
+    if (watchedDetails.length > 1) {
+      validateDuplicateProducts();
+    }
+  }, [watchedDetails]);
 
   // Ensure suppliers and products are arrays
   const safeSuppliers = Array.isArray(suppliers) ? suppliers : [];
@@ -180,20 +224,35 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
 
   const onSubmit = async (data: PurchaseFormData) => {
     try {
-      // Validate no duplicate products
-      const productIds = data.details.map(detail => detail.product_id).filter(id => id > 0);
-      const uniqueProductIds = [...new Set(productIds)];
+      // Validate no empty details
+      const validDetails = data.details.filter(detail => detail.product_id > 0);
       
-      if (productIds.length !== uniqueProductIds.length) {
-        alert('No puede haber productos duplicados en la misma compra. Por favor, elimina los productos duplicados.');
+      if (validDetails.length === 0) {
+        setError('details', {
+          type: 'manual',
+          message: 'Debe agregar al menos un producto a la compra.'
+        });
+        return;
+      }
+
+      // Validate no duplicate products
+      if (!validateDuplicateProducts()) {
         return;
       }
 
       // Calculate total dynamically
       const calculatedTotal = calculateTotal().toFixed(2);
       
+      if (parseFloat(calculatedTotal) <= 0) {
+        setError('total_amount', {
+          type: 'manual',
+          message: 'El total de la compra debe ser mayor a 0.'
+        });
+        return;
+      }
+
       if (isEditing && purchase) {
-        await updatePurchase({
+        const updateData: PurchaseInterface = {
           ...purchase,
           supplier_id: data.supplier_id,
           user_id: data.user_id,
@@ -201,16 +260,22 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
           total_amount: calculatedTotal,
           status: data.status,
           notes: data.notes,
-          details: data.details.map(detail => ({
-            ...detail,
+          details: validDetails.map(detail => ({
             id: Math.floor(Math.random() * 999999) + 1,
             purchase_id: purchase.id,
+            product_id: detail.product_id,
+            quantity: detail.quantity,
+            purchase_price: detail.purchase_price,
+            subtotal: detail.subtotal,
             product: { id: 0, name: '', description: '', unit_price: '', stock: 0, is_active: false }
           }))
-        });
+        };
+        
+        await updatePurchase(updateData);
       } else {
         await createPurchase({
           ...data,
+          details: validDetails,
           total_amount: calculatedTotal
         });
         reset();
@@ -218,6 +283,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
       onClose();
     } catch (error) {
       console.error('Error saving purchase:', error);
+      // You can add a toast notification here if available
     }
   };
 
@@ -228,8 +294,63 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
   const removeDetail = (index: number) => {
     if (fields.length > 1) {
       remove(index);
+      // Re-validate duplicates after removal
+      setTimeout(() => validateDuplicateProducts(), 100);
     }
   };
+
+  const handleProductChange = (index: number, productId: number) => {
+    setValue(`details.${index}.product_id`, productId);
+    // Clear the error for this field
+    const fieldPath = `details.${index}.product_id` as `details.${number}.product_id`;
+    clearErrors(fieldPath);
+    // Re-validate duplicates
+    setTimeout(() => validateDuplicateProducts(), 100);
+  };
+
+  const handleQuantityChange = (index: number, quantity: string) => {
+    const qty = parseInt(quantity) || 0;
+    setValue(`details.${index}.quantity`, qty);
+    
+    if (qty > 0) {
+      const price = parseFloat(watchedDetails[index]?.purchase_price || '0');
+      if (price > 0) {
+        const subtotal = (qty * price).toFixed(2);
+        setValue(`details.${index}.subtotal`, subtotal);
+      }
+    }
+    
+    // Clear error if quantity is now valid
+    if (qty > 0) {
+      const fieldPath = `details.${index}.quantity` as `details.${number}.quantity`;
+      clearErrors(fieldPath);
+    }
+  };
+
+  const handlePriceChange = (index: number, price: string) => {
+    const priceValue = parseFloat(price) || 0;
+    setValue(`details.${index}.purchase_price`, price);
+    
+    if (priceValue >= 0) {
+      const quantity = parseInt(watchedDetails[index]?.quantity?.toString() || '0');
+      if (quantity > 0) {
+        const subtotal = (quantity * priceValue).toFixed(2);
+        setValue(`details.${index}.subtotal`, subtotal);
+      }
+    }
+    
+    // Clear error if price is now valid
+    if (priceValue >= 0) {
+      const fieldPath = `details.${index}.purchase_price` as `details.${number}.purchase_price`;
+      clearErrors(fieldPath);
+    }
+  };
+
+  // Check if form has any errors
+  const hasErrors = Object.keys(errors).length > 0;
+  const hasDuplicates = watchedDetails.some((_, index) => 
+    errors.details?.[index]?.product_id?.type === 'manual'
+  );
 
   return (
     <div className="space-y-6">
@@ -250,7 +371,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
             <select
               {...register('supplier_id', { 
                 required: 'El proveedor es requerido',
-                min: { value: 1, message: 'Selecciona un proveedor' }
+                min: { value: 1, message: 'Selecciona un proveedor válido' }
               })}
               className={`select select-bordered w-full ${errors.supplier_id ? 'select-error' : ''}`}
             >
@@ -288,14 +409,14 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
             </label>
             <input
               type="date"
-              max={new Date().toISOString().split('T')[0]} // Prevent future dates
+              max={new Date().toISOString().split('T')[0]}
               {...register('purchase_date', { 
                 required: 'La fecha es requerida',
                 validate: (value) => {
                   const today = new Date();
                   const selectedDate = new Date(value);
                   if (selectedDate > today) {
-                    return 'La fecha de compra no puede ser en el futuro.';
+                    return 'La fecha de compra no puede ser en el futuro';
                   }
                   return true;
                 }
@@ -360,6 +481,16 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
             </button>
           </div>
 
+          {/* Validation Alert */}
+          {hasDuplicates && (
+            <div className="alert alert-error">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span>¡Error! Hay productos duplicados. Cada producto debe ser único en la compra.</span>
+            </div>
+          )}
+
           {fields.map((field, index) => (
             <div key={field.id} className="card bg-base-200 p-4">
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
@@ -373,23 +504,12 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                   <select
                     {...register(`details.${index}.product_id`, { 
                       required: 'El producto es requerido',
-                      min: { value: 1, message: 'Selecciona un producto' },
-                      validate: (value) => {
-                        if (value === 0) return true; // Skip validation for placeholder
-                        
-                        // Check for duplicates
-                        const currentProductIds = watchedDetails
-                          .map((detail, idx) => idx !== index ? detail.product_id : null)
-                          .filter(id => id !== null && id > 0);
-                        
-                        if (currentProductIds.includes(value)) {
-                          return 'Producto duplicado';
-                        }
-                        
-                        return true;
-                      }
+                      min: { value: 1, message: 'Selecciona un producto válido' }
                     })}
-                    className={`select select-bordered w-full ${errors.details?.[index]?.product_id ? 'select-error' : ''}`}
+                    onChange={(e) => handleProductChange(index, parseInt(e.target.value))}
+                    className={`select select-bordered w-full ${
+                      errors.details?.[index]?.product_id ? 'select-error' : ''
+                    }`}
                   >
                     <option value={0}>Selecciona un producto</option>
                     {activeProducts.map(product => (
@@ -409,7 +529,9 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                   </select>
                   {errors.details?.[index]?.product_id && (
                     <label className="label">
-                      <span className="label-text-alt text-error">{errors.details[index]?.product_id?.message}</span>
+                      <span className="label-text-alt text-error">
+                        {errors.details[index]?.product_id?.message}
+                      </span>
                     </label>
                   )}
                   {activeProducts.length === 0 && (
@@ -430,16 +552,18 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                       required: 'La cantidad es requerida',
                       min: { value: 1, message: 'La cantidad debe ser mayor a 0' }
                     })}
-                    onChange={(e) => {
-                      const quantity = parseInt(e.target.value) || 0;
-                      const price = parseFloat(watchedDetails[index]?.purchase_price || '0');
-                      if (quantity > 0 && price > 0) {
-                        const subtotal = (quantity * price).toFixed(2);
-                        setValue(`details.${index}.subtotal`, subtotal);
-                      }
-                    }}
-                    className={`input input-bordered w-full ${errors.details?.[index]?.quantity ? 'input-error' : ''}`}
+                    onChange={(e) => handleQuantityChange(index, e.target.value)}
+                    className={`input input-bordered w-full ${
+                      errors.details?.[index]?.quantity ? 'input-error' : ''
+                    }`}
                   />
+                  {errors.details?.[index]?.quantity && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">
+                        {errors.details[index]?.quantity?.message}
+                      </span>
+                    </label>
+                  )}
                 </div>
 
                 <div className="form-control">
@@ -454,16 +578,18 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                       required: 'El precio es requerido',
                       min: { value: 0, message: 'El precio debe ser mayor o igual a 0' }
                     })}
-                    onChange={(e) => {
-                      const price = parseFloat(e.target.value) || 0;
-                      const quantity = parseInt(watchedDetails[index]?.quantity?.toString() || '0');
-                      if (quantity > 0 && price > 0) {
-                        const subtotal = (quantity * price).toFixed(2);
-                        setValue(`details.${index}.subtotal`, subtotal);
-                      }
-                    }}
-                    className={`input input-bordered w-full ${errors.details?.[index]?.purchase_price ? 'input-error' : ''}`}
+                    onChange={(e) => handlePriceChange(index, e.target.value)}
+                    className={`input input-bordered w-full ${
+                      errors.details?.[index]?.purchase_price ? 'input-error' : ''
+                    }`}
                   />
+                  {errors.details?.[index]?.purchase_price && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">
+                        {errors.details[index]?.purchase_price?.message}
+                      </span>
+                    </label>
+                  )}
                 </div>
 
                 <div className="form-control">
@@ -507,10 +633,15 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
           <input
             type="number"
             step="0.01"
-            value={watch('total_amount') || calculateTotal().toFixed(2)}
+            value={calculateTotal().toFixed(2)}
             className="input input-bordered w-full bg-base-100 text-lg font-bold"
             readOnly
           />
+          {errors.total_amount && (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.total_amount.message}</span>
+            </label>
+          )}
         </div>
 
         {/* Form Actions */}
@@ -526,7 +657,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={isSubmitting || !isValid}
+            disabled={isSubmitting || hasErrors || hasDuplicates}
           >
             {isSubmitting ? (
               <span className="loading loading-spinner loading-sm"></span>
