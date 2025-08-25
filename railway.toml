@@ -10,7 +10,7 @@ NODE_ENV = "production"
 BUN_ENV = "production"
 
 [deploy]
-startCommand = "bun run preview --host 0.0.0.0 --port $PORT"
+startCommand = "bunx serve dist --single --listen 0.0.0.0:$PORT"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
@@ -19,3 +19,15 @@ path = "/"
 interval = "30s"
 timeout = "10s"
 retries = 3 
+
+[phases.setup]
+nixPkgs = ["bun", "nodejs_22"]
+
+[phases.install]
+cmds = ["bun install"]
+
+[phases.build]
+cmds = ["bun run build"]
+
+[start]
+cmd = "bunx serve dist --single --listen 0.0.0.0:$PORT"
