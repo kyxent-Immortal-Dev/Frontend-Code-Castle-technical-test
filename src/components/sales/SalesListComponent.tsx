@@ -5,6 +5,7 @@ import { CreateUpdateSales } from './CreateUpdateSales';
 import { SaleDetails } from './SaleDetails';
 import { DeleteConfirmation } from './DeleteConfirmation';
 import { SalesReportForm } from './SalesReportForm';
+import { ViewMobileSales } from './ViewMobileSales';
 import { ModalComponent } from '../atoms/ModalComponent';
 import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import { Toast } from '../atoms/Toast';
@@ -79,105 +80,107 @@ export const SalesListComponent: React.FC = () => {
     });
   };
 
-
-
   if (isLoading && sales.length === 0) {
     return <LoadingSpinner text="Cargando ventas..." />;
   }
 
   if (error) {
     return (
-      <div className="alert alert-error">
-        <span>Error: {error}</span>
-        <button onClick={clearError} className="btn btn-sm">Limpiar</button>
+      <div className="container mx-auto p-4 sm:p-6">
+        <div className="alert alert-error">
+          <span>Error: {error}</span>
+          <button onClick={clearError} className="btn btn-sm">Limpiar</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 sm:p-6 max-w-7xl">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-base-content mb-2">Gestión de Ventas</h1>
-        <p className="text-base-content/70">Administra las ventas del sistema y su información detallada</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-base-content mb-2">Gestión de Ventas</h1>
+        <p className="text-sm sm:text-base text-base-content/70">Administra las ventas del sistema y su información detallada</p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-primary">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6">
+          <div className="stat-figure text-primary hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
-          <div className="stat-title">Total de Ventas</div>
-          <div className="stat-value text-primary">{sales.length}</div>
-          <div className="stat-desc">Registradas en el sistema</div>
+          <div className="stat-title text-xs sm:text-sm">Total de Ventas</div>
+          <div className="stat-value text-primary text-lg sm:text-2xl">{sales.length}</div>
+          <div className="stat-desc text-xs">Registradas en el sistema</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-success">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6">
+          <div className="stat-figure text-success hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div className="stat-title">Ventas Activas</div>
-          <div className="stat-value text-success">{sales.filter(s => s.status === 'active').length}</div>
-          <div className="stat-desc">Ventas confirmadas</div>
+          <div className="stat-title text-xs sm:text-sm">Ventas Activas</div>
+          <div className="stat-value text-success text-lg sm:text-2xl">{sales.filter(s => s.status === 'active').length}</div>
+          <div className="stat-desc text-xs">Ventas confirmadas</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-warning">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6">
+          <div className="stat-figure text-warning hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636" />
             </svg>
           </div>
-          <div className="stat-title">Ventas Canceladas</div>
-          <div className="stat-value text-warning">{sales.filter(s => s.status === 'cancelled').length}</div>
-          <div className="stat-desc">Ventas anuladas</div>
+          <div className="stat-title text-xs sm:text-sm">Ventas Canceladas</div>
+          <div className="stat-value text-warning text-lg sm:text-2xl">{sales.filter(s => s.status === 'cancelled').length}</div>
+          <div className="stat-desc text-xs">Ventas anuladas</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-info">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-3 sm:p-6 col-span-2 lg:col-span-1">
+          <div className="stat-figure text-info hidden sm:block">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
             </svg>
           </div>
-          <div className="stat-title">Total Generado</div>
-          <div className="stat-value text-info">
+          <div className="stat-title text-xs sm:text-sm">Total Generado</div>
+          <div className="stat-value text-info text-lg sm:text-2xl">
             {formatCurrency(sales.reduce((total, sale) => total + Number(sale.total_amount), 0))}
           </div>
-          <div className="stat-desc">Ingresos totales</div>
+          <div className="stat-desc text-xs">Ingresos totales</div>
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-6">
         <div></div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="btn btn-secondary btn-lg"
+            className="btn btn-secondary btn-sm sm:btn-lg order-2 sm:order-1"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Generar Reporte
+            <span className="hidden sm:inline">Generar Reporte</span>
+            <span className="sm:hidden">Reporte</span>
           </button>
           <button
             onClick={openCreateModal}
-            className="btn btn-primary btn-lg"
+            className="btn btn-primary btn-sm sm:btn-lg order-1 sm:order-2"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
             </svg>
-            + Nueva Venta
+            <span className="hidden sm:inline">+ Nueva Venta</span>
+            <span className="sm:hidden">+ Nueva</span>
           </button>
         </div>
       </div>
 
-      {/* Sales Table */}
-      <div className="bg-base-100 shadow-lg rounded-lg overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-base-100 shadow-lg rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="table table-zebra w-full">
             <thead className="bg-primary text-primary-content">
@@ -263,7 +266,7 @@ export const SalesListComponent: React.FC = () => {
                         title="Eliminar"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0016.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
                     </div>
@@ -286,6 +289,30 @@ export const SalesListComponent: React.FC = () => {
             <button
               onClick={openCreateModal}
               className="btn btn-primary btn-lg gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Registrar Venta
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile/Tablet Card View */}
+      <div className="lg:hidden">
+        <ViewMobileSales 
+          sales={sales}
+          onViewDetails={openViewModal}
+          onCancelSale={handleCancelSale}
+          onDeleteSale={openDeleteModal}
+        />
+        
+        {sales.length === 0 && !isLoading && (
+          <div className="text-center py-12 px-4">
+            <button
+              onClick={openCreateModal}
+              className="btn btn-primary btn-lg gap-2 w-full sm:w-auto"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />

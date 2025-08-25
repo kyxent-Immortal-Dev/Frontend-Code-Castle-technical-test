@@ -6,6 +6,7 @@ import { PurchaseDetails } from './PurchaseDetails';
 import { DeleteConfirmation } from './DeleteConfirmation';
 import { PurchaseStatsComponent } from './PurchaseStats';
 import { PurchasesBySupplierReportForm } from './PurchasesBySupplierReportForm';
+import { ViewMobilePurchases } from './ViewMobilePurchases';
 import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import { ModalComponent } from '../atoms/ModalComponent';
 
@@ -165,75 +166,87 @@ export const PurchaseListComponent: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 lg:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-base-content mb-2">Gestión de Compras</h1>
-        <p className="text-base-content/70">Administra las compras y adquisiciones del sistema</p>
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-2xl lg:text-3xl font-bold text-base-content mb-2">
+          Gestión de Compras
+        </h1>
+        <p className="text-base-content/70 text-sm lg:text-base">
+          Administra las compras y adquisiciones del sistema
+        </p>
       </div>
 
       {/* Statistics Cards */}
       <PurchaseStatsComponent />
 
       {/* Action Bar */}
-      <div className="flex justify-between items-center mb-6">
-        {/* Filters */}
-        <div className="flex gap-4">
-          <div className="form-control w-64">
-            <input
-              type="text"
-              placeholder="Buscar compras..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="input input-bordered w-full"
-            />
+      <div className="mb-6 space-y-4 lg:space-y-0">
+        {/* Filters - Stack on mobile, row on desktop */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 lg:gap-4 flex-1">
+            <div className="form-control w-full sm:w-64">
+              <input
+                type="text"
+                placeholder="Buscar compras..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input input-bordered w-full text-sm"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'pending' | 'completed' | 'cancelled')}
+              className="select select-bordered w-full sm:w-auto text-sm"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="pending">Solo pendientes</option>
+              <option value="completed">Solo completadas</option>
+              <option value="cancelled">Solo canceladas</option>
+            </select>
+            <select
+              value={supplierFilter}
+              onChange={(e) => setSupplierFilter(parseInt(e.target.value))}
+              className="select select-bordered w-full sm:w-auto text-sm"
+            >
+              <option value={0}>Todos los proveedores</option>
+              {uniqueSuppliers.map(supplier => (
+                <option key={supplier?.id} value={supplier?.id}>
+                  {supplier?.name}
+                </option>
+              ))}
+            </select>
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'pending' | 'completed' | 'cancelled')}
-            className="select select-bordered"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="pending">Solo pendientes</option>
-            <option value="completed">Solo completadas</option>
-            <option value="cancelled">Solo canceladas</option>
-          </select>
-          <select
-            value={supplierFilter}
-            onChange={(e) => setSupplierFilter(parseInt(e.target.value))}
-            className="select select-bordered"
-          >
-            <option value={0}>Todos los proveedores</option>
-            {uniqueSuppliers.map(supplier => (
-              <option key={supplier?.id} value={supplier?.id}>
-                {supplier?.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          onClick={() => setIsReportModalOpen(true)}
-          className="btn btn-primary btn-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Generar Reporte 
-        </button>
 
-        <button
-          onClick={handleCreate}
-          className="btn btn-primary btn-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          + Nueva Compra
-        </button>
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-2 lg:gap-3">
+            <button
+              onClick={() => setIsReportModalOpen(true)}
+              className="btn btn-secondary btn-sm lg:btn-md gap-2 order-2 sm:order-1"
+            >
+              <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="hidden sm:inline">Generar Reporte</span>
+              <span className="sm:hidden">Reporte</span>
+            </button>
+
+            <button
+              onClick={handleCreate}
+              className="btn btn-primary btn-sm lg:btn-md gap-2 order-1 sm:order-2"
+            >
+              <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span className="hidden sm:inline">Nueva Compra</span>
+              <span className="sm:hidden">Nueva</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Purchases Table */}
-      <div className="bg-base-100 shadow-lg rounded-lg overflow-hidden">
+      {/* Desktop Table - Hidden on mobile */}
+      <div className="hidden lg:block bg-base-100 shadow-lg rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="table table-zebra w-full">
             <thead className="bg-primary text-primary-content">
@@ -295,31 +308,31 @@ export const PurchaseListComponent: React.FC = () => {
                       </div>
                     </td>
                     <td className="text-center">
-                          <div className="flex justify-center gap-2">
-                            <button
-                              onClick={() => handleViewDetails(purchase)}
-                              className="btn btn-sm btn-info"
-                            >
-                              Ver
-                            </button>
-                            {permissions.canEdit && (
-                              <button
-                                onClick={() => handleEdit(purchase)}
-                                className="btn btn-sm btn-warning"
-                              >
-                                Editar
-                              </button>
-                            )}
-                            {permissions.canDelete && (
-                              <button
-                                onClick={() => handleDelete(purchase)}
-                                className="btn btn-sm btn-error"
-                              >
-                                Eliminar
-                              </button>
-                            )}
-                          </div>
-                        </td>
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handleViewDetails(purchase)}
+                          className="btn btn-sm btn-info"
+                        >
+                          Ver
+                        </button>
+                        {permissions.canEdit && (
+                          <button
+                            onClick={() => handleEdit(purchase)}
+                            className="btn btn-sm btn-warning"
+                          >
+                            Editar
+                          </button>
+                        )}
+                        {permissions.canDelete && (
+                          <button
+                            onClick={() => handleDelete(purchase)}
+                            className="btn btn-sm btn-error"
+                          >
+                            Eliminar
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -339,6 +352,40 @@ export const PurchaseListComponent: React.FC = () => {
             <button
               onClick={handleCreate}
               className="btn btn-primary btn-lg gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar Compra
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Cards - Visible only on mobile/tablet */}
+      <div className="block lg:hidden">
+        <ViewMobilePurchases
+          purchases={filteredPurchases}
+          onViewDetails={handleViewDetails}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          getPurchasePermissions={getPurchasePermissions}
+        />
+
+        {filteredPurchases.length === 0 && !isLoading && (
+          <div className="text-center py-12 px-4">
+            <div className="text-base-content/50 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No se encontraron compras</h3>
+            <p className="text-base-content/70 mb-4 text-sm">
+              Intenta ajustar los filtros o crear una nueva compra
+            </p>
+            <button
+              onClick={handleCreate}
+              className="btn btn-primary btn-wide gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
