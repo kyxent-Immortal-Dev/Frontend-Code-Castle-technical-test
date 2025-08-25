@@ -94,6 +94,27 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
         }
     }, []);
 
+    const generateStockReport = useCallback(async () => {
+        try {
+            setError(null);
+            const blob = await productService.generateStockReport();
+            
+            // Crear URL del blob y descargar
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `reporte-stock-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            setError('Error al generar reporte');
+            console.error('Error generating stock report:', error);
+            throw new Error('Error al generar reporte');
+        }
+    }, []);
+
     const contextValue = useMemo(() => ({
         products,
         isLoading,
@@ -103,7 +124,8 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
         updateProduct,
         deleteProduct,
         getProductById,
-    }), [products, isLoading, error, getProducts, createProduct, updateProduct, deleteProduct, getProductById]);
+        generateStockReport,
+    }), [products, isLoading, error, getProducts, createProduct, updateProduct, deleteProduct, getProductById, generateStockReport]);
 
     return (
         <ProductsContext.Provider value={contextValue}>

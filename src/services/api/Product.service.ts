@@ -31,4 +31,11 @@ export class ProductService {
         return response.data;
     }
 
+    async generateStockReport(): Promise<Blob> {
+        const response = await this.httpClient.get('/products/stock-report', {
+            responseType: 'blob'
+        });
+        return response.data;
+    }
+
 }

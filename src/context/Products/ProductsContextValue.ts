@@ -10,6 +10,7 @@ export interface ProductsContextType {
     updateProduct: (product: ProductInterface) => Promise<void>;
     deleteProduct: (id: number) => Promise<void>;
     getProductById: (id: number) => Promise<ProductInterface | null>;
+    generateStockReport: () => Promise<void>;
 }
 
 export const ProductsContext = createContext<ProductsContextType | undefined>(undefined);

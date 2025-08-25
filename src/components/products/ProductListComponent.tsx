@@ -10,13 +10,14 @@ import { LoadingSpinner } from '../atoms';
 type ModalType = 'create' | 'edit' | 'delete' | 'details' | null;
 
 export const ProductListComponent: React.FC = () => {
-  const { products, isLoading, error, getProducts, deleteProduct } = useProductsContext();
+  const { products, isLoading, error, getProducts, deleteProduct, generateStockReport } = useProductsContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [stockFilter, setStockFilter] = useState<'all' | 'in-stock' | 'low-stock' | 'out-of-stock'>('all');
   const [modalType, setModalType] = useState<ModalType>(null);
   const [selectedProduct, setSelectedProduct] = useState<ProductInterface | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   useEffect(() => {
     getProducts();
@@ -58,6 +59,17 @@ export const ProductListComponent: React.FC = () => {
       } finally {
         setIsDeleting(false);
       }
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      setIsGeneratingReport(true);
+      await generateStockReport();
+    } catch (error) {
+      console.error('Error generating report:', error);
+    } finally {
+      setIsGeneratingReport(false);
     }
   };
 
@@ -197,15 +209,36 @@ export const ProductListComponent: React.FC = () => {
           </select>
         </div>
 
-        <button
-          onClick={handleCreate}
-          className="btn btn-primary btn-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-          </svg>
-          + Nuevo Producto
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleGenerateReport}
+            disabled={isGeneratingReport}
+            className="btn btn-secondary btn-lg"
+          >
+            {isGeneratingReport ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Generando...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Generar Reporte
+              </>
+            )}
+          </button>
+          <button
+            onClick={handleCreate}
+            className="btn btn-primary btn-lg"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            + Nuevo Producto
+          </button>
+        </div>
       </div>
 
       {/* Products Table */}
