@@ -89,7 +89,7 @@ export const ViewMobilePurchases: React.FC<ViewMobilePurchasesProps> = ({
                 <div className="flex items-center gap-3">
                   <div className="avatar placeholder">
                     <div className="bg-primary text-primary-content rounded-full w-10">
-                      <span className="text-xs font-bold">
+                      <span className="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                         #{purchase.id}
                       </span>
                     </div>

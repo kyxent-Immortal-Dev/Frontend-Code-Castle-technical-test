@@ -195,7 +195,7 @@ export const SuppliersListComponent: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <div className="avatar placeholder">
                         <div className="bg-neutral text-neutral-content rounded-full w-10">
-                          <span className="text-sm font-semibold">
+                          <span className="text-sm font-semibold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                             {supplier.name.charAt(0).toUpperCase()}
                           </span>
                         </div>

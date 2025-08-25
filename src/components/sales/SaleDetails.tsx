@@ -33,13 +33,7 @@ export const SaleDetails = ({ sale }: SaleDetailsProps) => {
     <div className="space-y-6">
       {/* Sale Header */}
       <div className="flex items-center gap-4 p-4 bg-base-200 rounded-lg">
-        <div className="avatar placeholder">
-          <div className="bg-primary text-primary-content rounded-full w-20">
-            <span className="text-2xl font-semibold">
-              {formatCurrency(sale.total_amount)}
-            </span>
-          </div>
-        </div>
+       
         <div>
           <h4 className="text-2xl font-bold">Venta #{sale.id}</h4>
           <p className="text-lg opacity-70">{formatDate(new Date(sale.sale_date))}</p>

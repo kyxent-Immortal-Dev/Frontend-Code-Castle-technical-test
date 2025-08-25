@@ -48,7 +48,7 @@ export const ViewMobileSales: React.FC<ViewMobileSalesProps> = ({
               <div className="flex items-center gap-3">
                 <div className="avatar placeholder">
                   <div className="bg-primary text-primary-content rounded-full w-10 h-10">
-                    <span className="text-xs font-semibold">
+                    <span className="text-xs font-semibold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                       #{sale.id}
                     </span>
                   </div>

@@ -40,7 +40,7 @@ export const ViewMobileUsers: React.FC<ViewMobileUsersProps> = ({
               <div className="flex items-center gap-3">
                 <div className="avatar placeholder">
                   <div className="bg-neutral text-neutral-content rounded-full w-12">
-                    <span className="text-lg font-semibold">
+                    <span className="text-lg font-semibold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                   </div>

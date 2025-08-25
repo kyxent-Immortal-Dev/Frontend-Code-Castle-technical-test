@@ -39,7 +39,7 @@ export const ViewMobileProducts: React.FC<ViewMobileProductsProps> = ({
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="avatar placeholder shrink-0">
                     <div className="bg-neutral text-neutral-content rounded-full w-12 h-12">
-                      <span className="text-lg font-semibold">
+                      <span className="text-lg font-semibold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                         {product.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -69,7 +69,7 @@ export const ViewMobileProducts: React.FC<ViewMobileProductsProps> = ({
                 <div className="space-y-1">
                   <div className="text-sm text-base-content/70">Stock</div>
                   <div className="flex flex-col gap-1">
-                    <span className={`badge ${stockStatus.color} w-fit`}>
+                    <span >
                       {stockStatus.text}
                     </span>
                     <span className="text-sm text-base-content/70">

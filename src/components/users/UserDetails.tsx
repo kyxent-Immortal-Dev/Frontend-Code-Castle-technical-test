@@ -42,7 +42,7 @@ export const UserDetails = ({ user }: UserDetailsProps) => {
       <div className="flex items-center gap-4 p-4 bg-base-200 rounded-lg">
         <div className="avatar placeholder">
           <div className="bg-neutral text-neutral-content rounded-full w-20">
-            <span className="text-2xl font-semibold">
+            <span className="text-2xl font-semibold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
               {user.name.charAt(0).toUpperCase()}
             </span>
           </div>

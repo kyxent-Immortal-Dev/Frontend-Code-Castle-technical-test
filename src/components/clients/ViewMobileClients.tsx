@@ -28,7 +28,7 @@ export const ViewMobileClients: React.FC<ViewMobileClientsProps> = ({
               <div className="flex items-center gap-3">
                 <div className="avatar placeholder">
                   <div className="bg-primary text-primary-content rounded-full w-12">
-                    <span className="text-lg font-bold">
+                    <span className="text-lg font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                       {client.name.charAt(0).toUpperCase()}
                     </span>
                   </div>

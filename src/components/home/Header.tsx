@@ -37,6 +37,7 @@ export const Header = () => {
     <>
       <div className="navbar bg-base-100 shadow-sm">
         <div className="flex-1">
+          
           <div>
             <Sidebar />
           </div>
@@ -61,6 +62,7 @@ export const Header = () => {
             </div>
           </div>
           <div className="dropdown dropdown-end">
+            
             <button
               tabIndex={0}
               className="btn btn-ghost btn-circle avatar"

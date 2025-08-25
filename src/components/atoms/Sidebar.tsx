@@ -1,4 +1,4 @@
-import { Menu, Home, Users, Settings, LogOut, Shield, Box, ArrowRightToLine } from "lucide-react";
+import { Menu, Home, Users, Settings, LogOut, Shield, ArrowRightToLine, TrendingUp, ShoppingCart, UserCheck, Package } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthService } from "../../store/useAuth.service";
 import { useThemeStore } from "../../store/useTheme.store";
@@ -24,17 +24,37 @@ export const Sidebar = () => {
     return location.pathname === path;
   };
 
-  const menuItems = [
-    { path: '/', label: 'Inicio', icon: Home },
-    { path: '/users', label: 'Usuarios', icon: Users },
-    { path: '/suppliers', label: 'Proveedores', icon: Users },
-    { path: '/products', label: 'Productos', icon: Box },
-    { path: '/purchases', label: 'Compras', icon: Box },
-    { path: '/clients', label: 'Clientes', icon: Users },
-    { path: '/sales', label: 'Ventas', icon: Box },
-    { path: '/settings', label: 'Configuración', icon: Settings },
+  // Define menu items with role restrictions
+  const getMenuItems = () => {
+    const baseItems = [
+      { path: '/', label: 'Inicio', icon: Home, roles: ['admin', 'vendedor'] },
+    ];
 
-  ];
+    const adminOnlyItems = [
+      { path: '/users', label: 'Usuarios', icon: Users, roles: ['admin'] },
+      { path: '/suppliers', label: 'Proveedores', icon: UserCheck, roles: ['admin'] },
+      { path: '/products', label: 'Productos', icon: Package, roles: ['admin'] },
+      { path: '/purchases', label: 'Compras', icon: ShoppingCart, roles: ['admin'] },
+      { path: '/clients', label: 'Clientes', icon: Users, roles: ['admin'] },
+    ];
+
+    const salesItems = [
+      { path: '/sales', label: 'Ventas', icon: TrendingUp, roles: ['admin', 'vendedor'] },
+    ];
+
+    const settingsItems = [
+      { path: '/settings', label: 'Configuración', icon: Settings, roles: ['admin'] },
+    ];
+
+    return [...baseItems, ...adminOnlyItems, ...salesItems, ...settingsItems];
+  };
+
+  const menuItems = getMenuItems();
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => 
+    user && item.roles.includes(user.role)
+  );
 
   return (
     <>
@@ -43,8 +63,9 @@ export const Sidebar = () => {
         <div className="drawer-content">
           {/* Page content here */}
           <button onClick={() => document.getElementById('my-drawer')?.click()} className="drawer-button cursor-pointer btn btn-ghost btn-circle">
-            <Menu className="w-6 h-6" />
+            <Menu className="w-6 h-6" /> 
           </button>
+          Menu
         </div>
         <div className="drawer-side z-50">
           <label
@@ -78,7 +99,7 @@ export const Sidebar = () => {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="avatar placeholder">
                     <div className="bg-neutral text-neutral-content rounded-full w-10">
-                      <span className="text-sm font-semibold">
+                      <span className="text-sm font-semibold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                         {user.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -99,7 +120,7 @@ export const Sidebar = () => {
             {/* Navigation Menu */}
             <nav className="flex-1">
               <ul className="menu menu-lg">
-                {menuItems.map((item) => {
+                {filteredMenuItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <li key={item.path}>
