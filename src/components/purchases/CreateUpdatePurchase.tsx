@@ -159,6 +159,27 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
     return quantity * price;
   };
 
+  // Helper function to get product price by ID
+  const getProductPrice = (productId: number): number => {
+    const product = safeProducts.find(p => p.id === productId);
+    return product ? parseFloat(product.unit_price) : 0;
+  };
+
+  // Helper function to update detail when product changes
+  const updateDetailOnProductChange = (index: number, productId: number) => {
+    if (productId > 0) {
+      const productPrice = getProductPrice(productId);
+      const quantity = parseInt(watchedDetails[index]?.quantity?.toString() || '1');
+      const subtotal = (quantity * productPrice).toFixed(2);
+      
+      setValue(`details.${index}.purchase_price`, productPrice.toFixed(2));
+      setValue(`details.${index}.subtotal`, subtotal);
+    } else {
+      setValue(`details.${index}.purchase_price`, '0.00');
+      setValue(`details.${index}.subtotal`, '0.00');
+    }
+  };
+
   // Show loading state while data is being fetched
   if (isLoadingSuppliers || isLoadingProducts) {
     return (
@@ -265,7 +286,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
             purchase_id: purchase.id,
             product_id: detail.product_id,
             quantity: detail.quantity,
-            purchase_price: detail.purchase_price,
+            purchase_price: getProductPrice(detail.product_id).toFixed(2),
             subtotal: detail.subtotal,
             product: { id: 0, name: '', description: '', unit_price: '', stock: 0, is_active: false }
           }))
@@ -275,7 +296,10 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
       } else {
         await createPurchase({
           ...data,
-          details: validDetails,
+          details: validDetails.map(detail => ({
+            ...detail,
+            purchase_price: getProductPrice(detail.product_id).toFixed(2)
+          })),
           total_amount: calculatedTotal
         });
         reset();
@@ -288,7 +312,12 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
   };
 
   const addDetail = () => {
-    append({ product_id: 0, quantity: 1, purchase_price: '0.00', subtotal: '0.00' });
+    append({ 
+      product_id: 0, 
+      quantity: 1, 
+      purchase_price: '0.00', 
+      subtotal: '0.00' 
+    });
   };
 
   const removeDetail = (index: number) => {
@@ -306,6 +335,8 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
     clearErrors(fieldPath);
     // Re-validate duplicates
     setTimeout(() => validateDuplicateProducts(), 100);
+    // Update price and subtotal when product changes
+    updateDetailOnProductChange(index, productId);
   };
 
   const handleQuantityChange = (index: number, quantity: string) => {
@@ -313,9 +344,10 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
     setValue(`details.${index}.quantity`, qty);
     
     if (qty > 0) {
-      const price = parseFloat(watchedDetails[index]?.purchase_price || '0');
-      if (price > 0) {
-        const subtotal = (qty * price).toFixed(2);
+      const productId = watchedDetails[index]?.product_id;
+      if (productId > 0) {
+        const productPrice = getProductPrice(productId);
+        const subtotal = (qty * productPrice).toFixed(2);
         setValue(`details.${index}.subtotal`, subtotal);
       }
     }
@@ -323,25 +355,6 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
     // Clear error if quantity is now valid
     if (qty > 0) {
       const fieldPath = `details.${index}.quantity` as `details.${number}.quantity`;
-      clearErrors(fieldPath);
-    }
-  };
-
-  const handlePriceChange = (index: number, price: string) => {
-    const priceValue = parseFloat(price) || 0;
-    setValue(`details.${index}.purchase_price`, price);
-    
-    if (priceValue >= 0) {
-      const quantity = parseInt(watchedDetails[index]?.quantity?.toString() || '0');
-      if (quantity > 0) {
-        const subtotal = (quantity * priceValue).toFixed(2);
-        setValue(`details.${index}.subtotal`, subtotal);
-      }
-    }
-    
-    // Clear error if price is now valid
-    if (priceValue >= 0) {
-      const fieldPath = `details.${index}.purchase_price` as `details.${number}.purchase_price`;
       clearErrors(fieldPath);
     }
   };
@@ -481,6 +494,20 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
             </button>
           </div>
 
+          {/* Info about automatic pricing */}
+          <div className="alert alert-info">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h4 className="font-bold">Precios automáticos</h4>
+              <p className="text-sm">
+                El precio unitario se obtiene automáticamente del producto seleccionado. 
+                Solo necesitas ingresar la cantidad deseada.
+              </p>
+            </div>
+          </div>
+
           {/* Validation Alert */}
           {hasDuplicates && (
             <div className="alert alert-error">
@@ -568,28 +595,17 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Precio Compra *</span>
+                    <span className="label-text">Precio Unitario</span>
+                    <span className="label-text-alt text-info">Automático del producto</span>
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
-                    {...register(`details.${index}.purchase_price`, { 
-                      required: 'El precio es requerido',
-                      min: { value: 0, message: 'El precio debe ser mayor o igual a 0' }
-                    })}
-                    onChange={(e) => handlePriceChange(index, e.target.value)}
-                    className={`input input-bordered w-full ${
-                      errors.details?.[index]?.purchase_price ? 'input-error' : ''
-                    }`}
+                    value={parseFloat(watchedDetails[index]?.purchase_price || '0.00').toFixed(2)}
+                    className="input input-bordered w-full bg-base-100"
+                    readOnly
                   />
-                  {errors.details?.[index]?.purchase_price && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">
-                        {errors.details[index]?.purchase_price?.message}
-                      </span>
-                    </label>
-                  )}
                 </div>
 
                 <div className="form-control">
