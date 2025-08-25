@@ -72,6 +72,7 @@ export const CreateUpdateSupplier: React.FC<CreateUpdateSupplierProps> = ({
           ...data,
           purchases: []
         });
+        reset();
       }
       onClose();
     } catch (error) {
