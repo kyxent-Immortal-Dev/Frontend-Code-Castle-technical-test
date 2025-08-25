@@ -6,6 +6,7 @@ import { DeleteConfirmation } from './DeleteConfirmation';
 import { ModalComponent } from '../atoms/ModalComponent';
 import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import { Toast } from '../atoms/Toast';
+import { ViewMobileClients } from './ViewMobileClients';
 import { useClientStore } from '../../store/useClient.service';
 
 export const ClientListComponent: React.FC = () => {
@@ -105,73 +106,120 @@ export const ClientListComponent: React.FC = () => {
 
   if (error) {
     return (
-      <div className="alert alert-error">
-        <span>Error: {error}</span>
-        <button onClick={clearError} className="btn btn-sm">Limpiar</button>
+      <div className="container mx-auto p-4 sm:p-6">
+        <div className="alert alert-error">
+          <span>Error: {error}</span>
+          <button onClick={clearError} className="btn btn-sm">Limpiar</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-base-content mb-2">Gestión de Clientes</h1>
-        <p className="text-base-content/70">Administra los clientes del sistema y su información de contacto</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-base-content mb-2">Gestión de Clientes</h1>
+        <p className="text-sm sm:text-base text-base-content/70">Administra los clientes del sistema y su información de contacto</p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-primary">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="stat-figure text-primary">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div>
+              <div className="stat-title text-sm">Total de Clientes</div>
+              <div className="stat-value text-primary text-2xl sm:text-3xl">{clients.length}</div>
+              <div className="stat-desc text-xs">Registrados en el sistema</div>
+            </div>
           </div>
-          <div className="stat-title">Total de Clientes</div>
-          <div className="stat-value text-primary">{clients.length}</div>
-          <div className="stat-desc">Registrados en el sistema</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-success">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="stat-figure text-success">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <div className="stat-title text-sm">Clientes Activos</div>
+              <div className="stat-value text-success text-2xl sm:text-3xl">{clients.filter(c => c.is_active).length}</div>
+              <div className="stat-desc text-xs">Cuentas activas actualmente</div>
+            </div>
           </div>
-          <div className="stat-title">Clientes Activos</div>
-          <div className="stat-value text-success">{clients.filter(c => c.is_active).length}</div>
-          <div className="stat-desc">Cuentas activas actualmente</div>
         </div>
 
-        <div className="stat bg-base-100 shadow-lg rounded-lg">
-          <div className="stat-figure text-info">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
+        <div className="stat bg-base-100 shadow-lg rounded-lg p-4 sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center gap-3">
+            <div className="stat-figure text-info">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+            </div>
+            <div>
+              <div className="stat-title text-sm">Con Teléfono</div>
+              <div className="stat-value text-info text-2xl sm:text-3xl">{clients.filter(c => c.phone).length}</div>
+              <div className="stat-desc text-xs">Clientes con teléfono registrado</div>
+            </div>
           </div>
-          <div className="stat-title">Con Teléfono</div>
-          <div className="stat-value text-info">{clients.filter(c => c.phone).length}</div>
-          <div className="stat-desc">Clientes con teléfono registrado</div>
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="flex justify-between items-center mb-6">
-        <div></div>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+        <div className="w-full sm:w-auto"></div>
         <button
           onClick={openCreateModal}
-          className="btn btn-primary btn-lg"
+          className="btn btn-primary btn-md sm:btn-lg w-full sm:w-auto"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          + Nuevo Cliente
+          <span className="text-sm sm:text-base">+ Nuevo Cliente</span>
         </button>
       </div>
 
-      {/* Clients Table */}
-      <div className="bg-base-100 shadow-lg rounded-lg overflow-hidden">
+      {/* Vista Móvil - Cards (visible solo en móvil) */}
+      <div className="block lg:hidden">
+        {clients.length > 0 ? (
+          <ViewMobileClients
+            clients={clients}
+            onViewClient={openViewModal}
+            onEditClient={openEditModal}
+            onToggleStatus={handleToggleStatus}
+            onDeleteClient={openDeleteModal}
+            formatDate={formatDate}
+          />
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-base-content/50 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No hay clientes registrados</h3>
+            <p className="text-base-content/70 mb-4 text-sm">Comienza agregando el primer cliente al sistema</p>
+            <button
+              onClick={openCreateModal}
+              className="btn btn-primary btn-md gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar Cliente
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Vista Desktop - Tabla (oculta en móvil) */}
+      <div className="hidden lg:block bg-base-100 shadow-lg rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="table table-zebra w-full">
             <thead className="bg-primary text-primary-content">
