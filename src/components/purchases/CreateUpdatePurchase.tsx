@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { usePurchasesContext } from '../../hooks/usePurchasesContext';
 import { useSuppliersContext } from '../../hooks/useSuppliersContext';
 import { useProductsContext } from '../../hooks/useProductsContext';
-import type { PurchaseInterface, PurchaseFormData } from '../../interfaces/inventary/Purchases.interface';
+import type { PurchaseInterface, PurchaseFormData, CreatePurchaseData } from '../../interfaces/inventary/Purchases.interface';
 
 interface CreateUpdatePurchaseProps {
   onClose: () => void;
@@ -125,21 +125,27 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
 
   useEffect(() => {
     if (purchase) {
-      const detailsWithSubtotals = purchase.details.map(detail => ({
-        product_id: detail.product_id,
-        quantity: detail.quantity,
-        purchase_price: detail.purchase_price,
-        subtotal: (detail.quantity * parseFloat(detail.purchase_price)).toFixed(2)
-      }));
+      const detailsWithCurrentPrices = purchase.details.map(detail => {
+        const currentProductPrice = getProductPrice(detail.product_id);
+        const quantity = detail.quantity;
+        const subtotal = (quantity * currentProductPrice).toFixed(2);
+        
+        return {
+          product_id: detail.product_id,
+          quantity: detail.quantity,
+          purchase_price: currentProductPrice.toFixed(2),
+          subtotal: subtotal
+        };
+      });
       
       reset({
         supplier_id: purchase.supplier_id,
         user_id: purchase.user_id,
         purchase_date: new Date(purchase.purchase_date).toISOString().split('T')[0],
-        total_amount: purchase.total_amount,
+        total_amount: detailsWithCurrentPrices.reduce((total, detail) => total + parseFloat(detail.subtotal), 0).toFixed(2),
         status: purchase.status,
         notes: purchase.notes,
-        details: detailsWithSubtotals
+        details: detailsWithCurrentPrices
       });
     } else {
       reset({
@@ -152,7 +158,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
         details: [{ product_id: 0, quantity: 1, purchase_price: '0.00', subtotal: '0.00' }]
       });
     }
-  }, [purchase, reset]);
+  }, [purchase, reset, safeProducts]);
 
   // Helper function to calculate subtotal for a specific detail
   const calculateSubtotal = (quantity: number, price: number) => {
@@ -261,10 +267,27 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
         return;
       }
 
-      // Calculate total dynamically
-      const calculatedTotal = calculateTotal().toFixed(2);
-      
-      if (parseFloat(calculatedTotal) <= 0) {
+      // Preparar los datos con los tipos correctos (números en lugar de strings)
+      const preparedDetails = validDetails.map(detail => {
+        const productPrice = getProductPrice(Number(detail.product_id));
+        const quantity = Number(detail.quantity);
+        const subtotal = parseFloat((quantity * productPrice).toFixed(2));
+        
+        return {
+          product_id: Number(detail.product_id), // Convertir a número
+          quantity: Number(detail.quantity),     // Convertir a número
+          purchase_price: parseFloat(productPrice.toFixed(2)), // Convertir a número
+          subtotal: subtotal // Ya es número
+        };
+      });
+
+      // Calcular el total correctamente
+      const calculatedTotal = preparedDetails.reduce((total, detail) => {
+        return total + detail.subtotal;
+      }, 0);
+
+      // Validar que el total sea mayor a 0
+      if (calculatedTotal <= 0) {
         setError('total_amount', {
           type: 'manual',
           message: 'El total de la compra debe ser mayor a 0.'
@@ -272,36 +295,43 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
         return;
       }
 
+      // Preparar el objeto final para enviar
+      const finalData = {
+        supplier_id: Number(data.supplier_id), // Convertir a número
+        purchase_date: data.purchase_date,
+        notes: data.notes || null,
+        status: data.status || 'pending',
+        details: preparedDetails
+        // NO incluir user_id aquí ya que el backend lo agrega automáticamente
+        // NO incluir total_amount aquí ya que el backend lo calcula
+      };
+
+      // Debug: Log the data being sent
+      console.log('Data being sent to backend:', finalData);
+      
       if (isEditing && purchase) {
         const updateData: PurchaseInterface = {
           ...purchase,
-          supplier_id: data.supplier_id,
-          user_id: data.user_id,
+          supplier_id: Number(data.supplier_id),
+          user_id: purchase.user_id, // Mantener el user_id original
           purchase_date: new Date(data.purchase_date),
-          total_amount: calculatedTotal,
+          total_amount: calculatedTotal.toFixed(2),
           status: data.status,
           notes: data.notes,
-          details: validDetails.map(detail => ({
+          details: preparedDetails.map(detail => ({
             id: Math.floor(Math.random() * 999999) + 1,
             purchase_id: purchase.id,
             product_id: detail.product_id,
             quantity: detail.quantity,
-            purchase_price: getProductPrice(detail.product_id).toFixed(2),
-            subtotal: detail.subtotal,
+            purchase_price: detail.purchase_price.toString(),
+            subtotal: detail.subtotal.toString(),
             product: { id: 0, name: '', description: '', unit_price: '', stock: 0, is_active: false }
           }))
         };
         
         await updatePurchase(updateData);
       } else {
-        await createPurchase({
-          ...data,
-          details: validDetails.map(detail => ({
-            ...detail,
-            purchase_price: getProductPrice(detail.product_id).toFixed(2)
-          })),
-          total_amount: calculatedTotal
-        });
+        await createPurchase(finalData as unknown as CreatePurchaseData);
         reset();
       }
       onClose();
@@ -596,7 +626,7 @@ export const CreateUpdatePurchase: React.FC<CreateUpdatePurchaseProps> = ({
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Precio Unitario</span>
-                    <span className="label-text-alt text-info">Automático del producto</span>
+
                   </label>
                   <input
                     type="number"
